@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopify Review Bot - Control Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-with-button {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .input-with-button input {
+            flex: 1;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-update {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 10px;
+            background: #48bb78;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+            font-size: 14px;
+        }
+
+        .btn-update:hover:not(:disabled) {
+            background: #38a169;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+        }
+
+        .btn-update:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-update.success {
+            background: #38a169;
+        }
+
+        .btn-update.success::before {
+            content: "✓ ";
+        }
+
+        .slider-container {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: linear-gradient(to right, #667eea 0%, #764ba2 100%);
+            outline: none;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .slider:hover {
+            opacity: 1;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            border: 3px solid #667eea;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            border: 3px solid #667eea;
+        }
+
+        .slider-value {
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .slider-value::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid #667eea;
+        }
+
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .checkbox-group:hover {
+            background: #edf2f7;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+            flex: 1;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #2d3748;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #cbd5e0;
+            transform: translateY(-2px);
+        }
+
+        .status-box {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 12px;
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            display: none;
+        }
+
+        .status-box.active {
+            display: block;
+        }
+
+        .status-box.running {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .status-box.error {
+            border-color: #f56565;
+            background: #fff5f5;
+        }
+
+        .status-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 18px;
+        }
+
+        .status-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-icon.running {
+            background: #48bb78;
+            animation: pulse 2s infinite;
+        }
+
+        .status-icon.error {
+            background: #f56565;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .log-container {
+            max-height: 300px;
+            overflow-y: auto;
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #2d3748;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 4px 0;
+        }
+
+        .log-entry.info { color: #4299e1; }
+        .log-entry.success { color: #48bb78; }
+        .log-entry.error { color: #f56565; }
+        .log-entry.warning { color: #ed8936; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 5px;
+        }
+
+        .help-text {
+            color: #718096;
+            font-size: 13px;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .success-message {
+            background: #f0fff4;
+            border: 2px solid #48bb78;
+            color: #22543d;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Review Bot Control Panel</h1>
+            <p>Configure and run your Shopify review automation</p>
+        </div>
+
+        <div id="botForm">
+            <div class="form-group">
+                <label>Store URL</label>
+                <div class="input-with-button">
+                    <input 
+                        type="text" 
+                        id="storeUrl" 
+                        placeholder="https://your-store.myshopify.com"
+                        required
+                    >
+                    <button type="button" class="btn-update" id="updateUrlBtn">
+                        Update
+                    </button>
+                </div>
+                <div class="success-message" id="urlSuccessMsg">
+                    ✓ Store URL saved to configuration!
+                </div>
+                <p class="help-text">Enter your Shopify store URL and click Update</p>
+            </div>
+
+            <div class="form-group">
+                <label>OpenAI API Key</label>
+                <div class="input-with-button">
+                    <input 
+                        type="text" 
+                        id="apiKey" 
+                        placeholder="sk-proj-..."
+                        required
+                    >
+                    <button type="button" class="btn-update" id="updateApiBtn">
+                        Update
+                    </button>
+                </div>
+                <div class="success-message" id="apiSuccessMsg">
+                    ✓ API Key saved to configuration!
+                </div>
+                <p class="help-text">Your OpenAI API key for AI review generation</p>
+            </div>
+
+            <div class="form-group">
+                <label>Reviews Per Product</label>
+                <div class="slider-container">
+                    <div class="slider-value" id="sliderValue">3</div>
+                    <input 
+                        type="range" 
+                        class="slider" 
+                        id="reviewCount" 
+                        min="1" 
+                        max="10" 
+                        value="3"
+                        step="1"
+                    >
+                    <div class="range-labels">
+                        <span>1 review</span>
+                        <span>10 reviews</span>
+                    </div>
+                </div>
+                <p class="help-text">Number of reviews to post per product</p>
+            </div>
+
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="useAiImages" checked>
+                    <label for="useAiImages">
+                        <strong>Use AI-Processed Images</strong><br>
+                        <small>Download and enhance product images for reviews</small>
+                    </label>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn btn-primary" id="startBtn">
+                    🚀 Start Bot
+                </button>
+                <button type="button" class="btn btn-secondary" id="stopBtn" disabled>
+                    ⏹️ Stop Bot
+                </button>
+            </div>
+        </div>
+
+        <div class="status-box" id="statusBox">
+            <div class="status-header">
+                <div class="status-icon" id="statusIcon">●</div>
+                <span id="statusText">Ready</span>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="statProducts">0</div>
+                    <div class="stat-label">Products</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statReviews">0</div>
+                    <div class="stat-label">Reviews Posted</div>
+                </div>
+            </div>
+
+            <div class="log-container" id="logContainer">
+                <div class="log-entry info">Bot ready to start...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Slider value display
+        const slider = document.getElementById('reviewCount');
+        const sliderValue = document.getElementById('sliderValue');
+        
+        slider.addEventListener('input', function() {
+            sliderValue.textContent = this.value;
+            const percent = (this.value - this.min) / (this.max - this.min);
+            sliderValue.style.left = `calc(${percent * 100}% + ${8 - percent * 16}px)`;
+        });
+
+        // Update Store URL
+        const updateUrlBtn = document.getElementById('updateUrlBtn');
+        const urlSuccessMsg = document.getElementById('urlSuccessMsg');
+        
+        updateUrlBtn.addEventListener('click', async function() {
+            const storeUrl = document.getElementById('storeUrl').value.trim();
+            
+            if (!storeUrl) {
+                alert('Please enter a store URL');
+                return;
+            }
+            
+            updateUrlBtn.disabled = true;
+            updateUrlBtn.textContent = 'Updating...';
+            
+            try {
+                const response = await fetch('/update-config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        field: 'STORE_URL',
+                        value: storeUrl
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateUrlBtn.classList.add('success');
+                    updateUrlBtn.textContent = 'Saved';
+                    urlSuccessMsg.classList.add('show');
+                    
+                    setTimeout(() => {
+                        updateUrlBtn.classList.remove('success');
+                        updateUrlBtn.textContent = 'Update';
+                        urlSuccessMsg.classList.remove('show');
+                    }, 3000);
+                } else {
+                    alert('Error: ' + data.message);
+                    updateUrlBtn.textContent = 'Update';
+                }
+            } catch (error) {
+                alert('Backend connection failed! Make sure Flask is running: python app.py');
+                updateUrlBtn.textContent = 'Update';
+            } finally {
+                updateUrlBtn.disabled = false;
+            }
+        });
+
+        // Update API Key
+        const updateApiBtn = document.getElementById('updateApiBtn');
+        const apiSuccessMsg = document.getElementById('apiSuccessMsg');
+        
+        updateApiBtn.addEventListener('click', async function() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            
+            if (!apiKey) {
+                alert('Please enter an API key');
+                return;
+            }
+            
+            updateApiBtn.disabled = true;
+            updateApiBtn.textContent = 'Updating...';
+            
+            try {
+                console.log('Updating API Key...');
+                const response = await fetch('/update-config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        field: 'OPENAI_API_KEY',
+                        value: apiKey
+                    })
+                });
+
+                console.log('API Key update response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('API Key update response data:', data);
+                
+                if (data.success) {
+                    updateApiBtn.classList.add('success');
+                    updateApiBtn.textContent = 'Saved';
+                    apiSuccessMsg.classList.add('show');
+                    
+                    setTimeout(() => {
+                        updateApiBtn.classList.remove('success');
+                        updateApiBtn.textContent = 'Update';
+                        apiSuccessMsg.classList.remove('show');
+                    }, 3000);
+                } else {
+                    alert('Error: ' + data.message);
+                    updateApiBtn.textContent = 'Update';
+                }
+            } catch (error) {
+                alert('Backend connection failed! Make sure Flask is running: python app.py');
+                updateApiBtn.textContent = 'Update';
+            } finally {
+                updateApiBtn.disabled = false;
+            }
+        });
+
+        // Start Bot
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const statusBox = document.getElementById('statusBox');
+        const statusIcon = document.getElementById('statusIcon');
+        const statusText = document.getElementById('statusText');
+        const logContainer = document.getElementById('logContainer');
+
+        let isRunning = false;
+
+        startBtn.addEventListener('click', async function(e) {
+            e.preventDefault();
+            console.log('Start button clicked');
+            
+            if (isRunning) {
+                console.log('Bot already running');
+                return;
+            }
+
+            const storeUrl = document.getElementById('storeUrl').value.trim();
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const reviewsPerProduct = parseInt(document.getElementById('reviewCount').value);
+            const useAiImages = document.getElementById('useAiImages').checked;
+
+            console.log('Configuration:', { storeUrl, apiKey: '***', reviewsPerProduct, useAiImages });
+
+            if (!storeUrl || !apiKey) {
+                alert('Please set Store URL and API Key first');
+                return;
+            }
+
+            const config = {
+                storeUrl: storeUrl,
+                apiKey: apiKey,
+                reviewsPerProduct: reviewsPerProduct,
+                useAiImages: useAiImages,
+                headless: true  // Always headless
+            };
+
+            console.log('Sending config to backend:', config);
+
+            // Show status box
+            statusBox.classList.add('active', 'running');
+            statusIcon.classList.add('running');
+            statusText.textContent = 'Bot Running...';
+            
+            // Update button states
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            isRunning = true;
+
+            // Add log entry
+            addLog('info', 'Starting bot with configuration...');
+            addLog('info', `Store: ${config.storeUrl}`);
+            addLog('info', `Reviews per product: ${config.reviewsPerProduct}`);
+            addLog('info', `AI Images: ${config.useAiImages ? 'Enabled' : 'Disabled'}`);
+            addLog('info', 'Headless: Always enabled (background mode)');
+
+            try {
+                console.log('Fetching /start-bot endpoint...');
+                const response = await fetch('/start-bot', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(config)
+                });
+
+                console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (data.success) {
+                    addLog('success', 'Bot started successfully!');
+                    pollBotStatus();
+                } else {
+                    addLog('error', `Error: ${data.message}`);
+                    resetButtons();
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                addLog('error', `Connection error: ${error.message}`);
+                addLog('warning', 'Make sure Flask backend is running!');
+                resetButtons();
+            }
+        });
+
+        stopBtn.addEventListener('click', async function() {
+            addLog('warning', 'Stopping bot...');
+            
+            try {
+                const response = await fetch('/stop-bot', {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                addLog('success', 'Bot stopped successfully');
+                resetButtons();
+            } catch (error) {
+                addLog('error', `Error stopping bot: ${error.message}`);
+            }
+        });
+
+        function addLog(type, message) {
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function resetButtons() {
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            isRunning = false;
+            statusBox.classList.remove('running');
+            statusIcon.classList.remove('running');
+            statusText.textContent = 'Stopped';
+        }
+
+        async function pollBotStatus() {
+            if (!isRunning) return;
+
+            try {
+                const response = await fetch('/bot-status');
+                const data = await response.json();
+
+                document.getElementById('statProducts').textContent = data.productsProcessed || 0;
+                document.getElementById('statReviews').textContent = data.reviewsPosted || 0;
+
+                if (data.logs && data.logs.length > 0) {
+                    data.logs.forEach(log => {
+                        addLog(log.type, log.message);
+                    });
+                }
+
+                if (data.running) {
+                    setTimeout(pollBotStatus, 2000);
+                } else {
+                    addLog('success', 'Bot completed all tasks!');
+                    resetButtons();
+                }
+            } catch (error) {
+                console.error('Polling error:', error);
+                setTimeout(pollBotStatus, 5000);
+            }
+        }
+
+        // Test button on page load
+        console.log('Page loaded, Start button:', startBtn);
+    </script>
+</body>
+</html>

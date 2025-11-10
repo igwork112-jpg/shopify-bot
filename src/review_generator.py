@@ -82,6 +82,39 @@ class ReviewGenerator:
             logger.error(f"Error in image generation workflow: {e}")
             return None
     
+    # def _download_and_encode_image(self, image_url: str) -> Optional[str]:
+    #     """Download product image and convert to base64 for GPT-4 Vision"""
+    #     try:
+    #         logger.info("📥 Downloading product image...")
+            
+    #         response = requests.get(image_url, timeout=15)
+    #         if response.status_code != 200:
+    #             logger.error(f"Failed to download: HTTP {response.status_code}")
+    #             return None
+            
+    #         # Load and convert image
+    #         img = Image.open(BytesIO(response.content))
+    #         if img.mode != 'RGB':
+    #             img = img.convert('RGB')
+            
+    #         # Save temporarily
+    #         temp_path = self.temp_dir / "temp_product.jpg"
+    #         img.save(temp_path, "JPEG", quality=85)
+            
+    #         # Convert to base64
+    #         with open(temp_path, "rb") as f:
+    #             img_bytes = f.read()
+    #             img_base64 = base64.b64encode(img_bytes).decode('utf-8')
+            
+    #         # Cleanup temp file
+    #         temp_path.unlink()
+            
+    #         logger.success("✅ Product image downloaded and encoded")
+    #         return img_base64
+            
+    #     except Exception as e:
+    #         logger.error(f"Error downloading image: {e}")
+    #         return None
     def _download_and_encode_image(self, image_url: str) -> Optional[str]:
         """Download product image and convert to base64 for GPT-4 Vision"""
         try:
@@ -92,14 +125,31 @@ class ReviewGenerator:
                 logger.error(f"Failed to download: HTTP {response.status_code}")
                 return None
             
-            # Load and convert image
+            # Load image
             img = Image.open(BytesIO(response.content))
-            if img.mode != 'RGB':
+            
+            # Handle transparency properly - convert to white background
+            if img.mode in ('RGBA', 'LA', 'P'):
+                logger.info(f"Converting {img.mode} image with transparency...")
+                # Create white background
+                background = Image.new('RGB', img.size, (255, 255, 255))
+                
+                if img.mode == 'P':
+                    img = img.convert('RGBA')
+                
+                # Paste image on white background using alpha channel as mask
+                if img.mode == 'RGBA':
+                    background.paste(img, (0, 0), img.split()[3])  # Use alpha channel as mask
+                elif img.mode == 'LA':
+                    background.paste(img, (0, 0), img.split()[1])
+                
+                img = background
+            elif img.mode != 'RGB':
                 img = img.convert('RGB')
             
-            # Save temporarily
+            # Save temporarily with high quality
             temp_path = self.temp_dir / "temp_product.jpg"
-            img.save(temp_path, "JPEG", quality=85)
+            img.save(temp_path, "JPEG", quality=95)  # Higher quality
             
             # Convert to base64
             with open(temp_path, "rb") as f:
@@ -115,7 +165,7 @@ class ReviewGenerator:
         except Exception as e:
             logger.error(f"Error downloading image: {e}")
             return None
-    
+        
     def _analyze_product_with_vision(self, img_base64: str, product_name: str) -> Optional[str]:
         """Analyze product image using GPT-4o-mini Vision"""
         try:

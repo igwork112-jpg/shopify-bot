@@ -166,6 +166,50 @@ class ReviewGenerator:
             logger.error(f"Error downloading image: {e}")
             return None
         
+#     def _analyze_product_with_vision(self, img_base64: str, product_name: str) -> Optional[str]:
+#         """Analyze product image using GPT-4o-mini Vision"""
+#         try:
+#             logger.info("👁️ Analyzing product with GPT-4 Vision...")
+            
+#             response = self.client.chat.completions.create(
+#                 model="gpt-4o-mini",
+#                 messages=[
+#                     {
+#                         "role": "user",
+#                         "content": [
+#                             {
+#                                 "type": "text",
+#                                 "text": f"""Analyze this product image for: {product_name}
+
+
+# CRITICAL: Look carefully at the ACTUAL COLOR of the product material itself, not reflections or highlights.
+
+# Describe in 2-3 sentences:
+# 1. The EXACT color of the product  - look at the body of the material, not light reflections
+# 2. The material type and thickness
+# 3. How it's designed to be installed or used
+
+# Be very precise about color. If you see highlights or reflections or sunlights or anything , ignore those and focus on the base product material color."""
+#                             },
+#                             {
+#                                 "type": "image_url",
+#                                 "image_url": {
+#                                     "url": f"data:image/jpeg;base64,{img_base64}"
+#                                 }
+#                             }
+#                         ]
+#                     }
+#                 ],
+#                 max_tokens=150
+#             )
+            
+#             description = response.choices[0].message.content.strip()
+#             logger.info(f"📋 Vision Analysis: {description[:100]}...")
+#             return description
+            
+#         except Exception as e:
+#             logger.error(f"Vision analysis failed: {e}")
+#             return None
     def _analyze_product_with_vision(self, img_base64: str, product_name: str) -> Optional[str]:
         """Analyze product image using GPT-4o-mini Vision"""
         try:
@@ -181,15 +225,19 @@ class ReviewGenerator:
                                 "type": "text",
                                 "text": f"""Analyze this product image for: {product_name}
 
+    CRITICAL INSTRUCTIONS:
+    - Look at the ACTUAL SOLID COLOR of the product material itself
+    - Ignore white backgrounds, reflections, highlights, or lighting effects
+    - If you see white around the product, that's just the background - NOT the product color
+    - Focus ONLY on the physical product's base material color
+    - If the product appears to be on a white surface, ignore that surface
 
-CRITICAL: Look carefully at the ACTUAL COLOR of the product material itself, not reflections or highlights.
+    Describe in 2-3 sentences:
+    1. The EXACT BASE COLOR of the product material (not background, not reflections)
+    2. The material type and thickness
+    3. How it's designed to be installed or used
 
-Describe in 2-3 sentences:
-1. The EXACT color of the product  - look at the body of the material, not light reflections
-2. The material type and thickness
-3. How it's designed to be installed or used
-
-Be very precise about color. If you see highlights or reflections or sunlights or anything , ignore those and focus on the base product material color."""
+    Be extremely precise about color. Common mistake: confusing white backgrounds with product color."""
                             },
                             {
                                 "type": "image_url",

@@ -1,13 +1,23 @@
 [phases.setup]
-nixPkgs = ["python311", "chromium", "nss", "freetype", "harfbuzz", "ca-certificates", "fontconfig","libjpeg-dev",
-  "zlib1g-dev",
-  "libpng-dev",
-  "libfreetype6-dev"]
+nixPkgs = [
+  "python312",
+  "chromium",
+  "nss",
+  "freetype",
+  "harfbuzz",
+  "fontconfig",
+  "libjpeg",
+  "zlib",
+  "libpng",
+  "libtiff",
+  "freetype"
+]
 
 [phases.install]
 cmds = [
-    "pip install --upgrade pip setuptools wheel",
-    "pip install -r requirements.txt"
+  "pip install --upgrade pip setuptools wheel",
+  "pip install -r requirements.txt",
+  "playwright install --with-deps chromium"
 ]
 
 [start]

@@ -1,6 +1,3 @@
-[build]
-builder = "nixpacks"
-
 [phases.setup]
 nixPkgs = [
     "python312",
@@ -21,8 +18,8 @@ nixPkgs = [
 [phases.install]
 cmds = [
     "pip install --upgrade pip",
-    "pip install --no-cache-dir -r requirements.txt",
-    # ✅ Explicitly install Chromium (and skip default WebKit)
+    "pip install -r requirements.txt",
+    # ✅ Force Chromium and its deps only
     "playwright install chromium --with-deps"
 ]
 

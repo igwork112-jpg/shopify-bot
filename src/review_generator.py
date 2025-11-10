@@ -14,7 +14,7 @@ class ReviewGenerator:
     
     def __init__(self):
         self.client = OpenAI(api_key=settings.OPENAI_API_KEY)
-        self.model = "gpt-4o-mini"
+        self.model = "gpt-4o"
         self.temp_dir = settings.TEMP_DIR
     
     def generate(self, product_name: str, product_description: str = "", 
@@ -62,7 +62,7 @@ class ReviewGenerator:
                 return None
             
             # Step 2: Analyze product with GPT-4 Vision
-            vision_description = self._analyze_product_with_vision(img_base64, product_name)
+            vision_description = self._analyze_product_with_vision(product_image_url, product_name)
             if not vision_description:
                 logger.warning("Vision analysis failed, using description fallback")
                 vision_description = product_description[:200] if product_description else f"This is a {product_name}"
@@ -131,10 +131,11 @@ class ReviewGenerator:
 
     
         
-    def _analyze_product_with_vision(self, img_base64: str, product_name: str) -> Optional[str]:
-        """Analyze product image using GPT-4o Vision (improved color accuracy)"""
+    # 
+    def _analyze_product_with_vision(self, image_url: str, product_name: str) -> Optional[str]:
+        """Analyze product image using GPT-4o Vision (fixed image_url format)"""
         try:
-            logger.info("👁️ Analyzing product with GPT-4 Vision (enhanced color logic)...")
+            logger.info("👁️ Analyzing product with GPT-4 Vision (fixed image_url object)...")
 
             prompt = f"""
     You are analyzing an image of a real product called "{product_name}".
@@ -158,10 +159,7 @@ class ReviewGenerator:
                         "role": "user",
                         "content": [
                             {"type": "text", "text": prompt},
-                            {
-                                "type": "image_url",
-                                "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"}
-                            },
+                            {"type": "image_url", "image_url": {"url": image_url}}
                         ],
                     }
                 ],

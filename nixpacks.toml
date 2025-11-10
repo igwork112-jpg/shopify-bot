@@ -26,11 +26,22 @@ cmds = [
     "playwright install-deps chromium"
 ]
 
+
 [phases.build]
-cmds = ["echo 'Build complete'"]
+cmds = [
+  "mkdir -p logs temp",
+  "chmod 755 logs temp"
+]
 
 [start]
-cmd = "python app.py"
+cmd = "bash start.sh"
+
+[variables]
+PYTHONUNBUFFERED = "1"
+PLAYWRIGHT_BROWSERS_PATH = "/root/.cache/ms-playwright"
+PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "0"
+
+
 
 [env]
 LD_LIBRARY_PATH = "/nix/store/*-libjpeg-turbo-*/lib:/nix/store/*-libjpeg-*/lib:$LD_LIBRARY_PATH"

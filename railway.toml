@@ -1,0 +1,41 @@
+[build]
+builder = "nixpacks"
+
+[phases.setup]
+nixPkgs = [
+    "python312",
+    "chromium",
+    "nss",
+    "freetype",
+    "harfbuzz",
+    "ca-certificates",
+    "fontconfig",
+    "libjpeg_turbo",
+    "zlib",
+    "libpng",
+    "libtiff",
+    "libwebp",
+    "openjpeg"
+]
+
+[phases.install]
+cmds = [
+    "pip install --upgrade pip",
+    "pip install --no-cache-dir -r requirements.txt",
+    # ✅ Explicitly install Chromium (and skip default WebKit)
+    "playwright install chromium --with-deps"
+]
+
+[phases.build]
+cmds = [
+    "mkdir -p logs temp",
+    "chmod 755 logs temp"
+]
+
+[start]
+cmd = "python app.py"
+
+[variables]
+PYTHONUNBUFFERED = "1"
+PLAYWRIGHT_BROWSERS_PATH = "/root/.cache/ms-playwright"
+PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "0"

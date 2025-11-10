@@ -7,7 +7,7 @@ nixPkgs = [
     "harfbuzz",
     "ca-certificates",
     "fontconfig",
-    "libjpeg",
+    "libjpeg62",
     "libjpeg_turbo",
     "zlib",
     "libpng",
@@ -19,10 +19,18 @@ nixPkgs = [
 [phases.install]
 cmds = [
     "pip install --upgrade pip",
+    "pip uninstall -y Pillow",
+    "pip install --no-cache-dir Pillow==10.2.0",
     "pip install -r requirements.txt",
     "playwright install chromium",
     "playwright install-deps chromium"
 ]
 
+[phases.build]
+cmds = ["echo 'Build complete'"]
+
 [start]
 cmd = "python app.py"
+
+[env]
+LD_LIBRARY_PATH = "/nix/store/*-libjpeg-turbo-*/lib:/nix/store/*-libjpeg-*/lib:$LD_LIBRARY_PATH"

@@ -62,7 +62,8 @@ class ReviewGenerator:
                 return None
             
             # Step 2: Analyze product with GPT-4 Vision (enhanced color detection)
-            vision_description = self._analyze_product_with_vision(product_image_url, product_name)
+            # FIXED: Pass img_base64 instead of product_image_url
+            vision_description = self._analyze_product_with_vision(img_base64, product_name)
             if not vision_description:
                 logger.warning("Vision analysis failed, using description fallback")
                 vision_description = product_description[:200] if product_description else f"This is a {product_name}"
@@ -87,59 +88,69 @@ class ReviewGenerator:
         try:
             logger.info("📥 Downloading and preprocessing product image...")
 
-            # Download
+            # Step 1: Download the image
             response = requests.get(image_url, timeout=15)
             if response.status_code != 200:
-                logger.error(f"❌ Failed to download: HTTP {response.status_code}")
+                logger.error(f"❌ Failed to download image: HTTP {response.status_code}")
                 return None
 
-            # Load
+            # Step 2: Load image
             img = Image.open(BytesIO(response.content))
             
-            # Handle transparency
+            # Step 3: Handle transparency properly - convert to white background
             if img.mode in ('RGBA', 'LA', 'P'):
+                logger.info(f"Converting {img.mode} image with transparency...")
+                # Create white background
                 background = Image.new('RGB', img.size, (255, 255, 255))
+                
                 if img.mode == 'P':
                     img = img.convert('RGBA')
+                
+                # Paste image on white background using alpha channel as mask
                 if img.mode == 'RGBA':
-                    background.paste(img, (0, 0), img.split()[3])
+                    background.paste(img, (0, 0), img.split()[3])  # Use alpha channel as mask
+                elif img.mode == 'LA':
+                    background.paste(img, (0, 0), img.split()[1])
+                
                 img = background
             elif img.mode != 'RGB':
                 img = img.convert('RGB')
 
-            # Reduce glare and enhance dark tones
+            # Step 4: Normalize exposure (reduce glare, enhance dark tones for glossy black products)
             from PIL import ImageEnhance
             
             # Reduce brightness to tone down reflections
             brightness = ImageEnhance.Brightness(img)
-            img = brightness.enhance(0.75)  # Darken more
+            img = brightness.enhance(0.75)  # Darken more to reduce white glare
             
             # Increase contrast to separate true color from reflections
             contrast = ImageEnhance.Contrast(img)
-            img = contrast.enhance(1.4)  # Higher contrast
+            img = contrast.enhance(1.4)  # Higher contrast to reveal dark tones
 
-            # Optimize size
+            # Step 5: Optimize size for Vision API
             max_size = (1024, 1024)
             img.thumbnail(max_size, Image.Resampling.LANCZOS)
 
-            # Save
+            # Step 6: Save temporarily for base64 encoding
             temp_path = self.temp_dir / "temp_product_preprocessed.jpg"
             img.save(temp_path, "JPEG", quality=92)
 
-            # Encode
+            # Step 7: Convert to base64
             with open(temp_path, "rb") as f:
-                img_base64 = base64.b64encode(f.read()).decode('utf-8')
+                img_bytes = f.read()
+                img_base64 = base64.b64encode(img_bytes).decode('utf-8')
 
+            # Step 8: Clean up temp file
             temp_path.unlink(missing_ok=True)
 
-            logger.success("✅ Product image preprocessed and encoded")
+            logger.success("✅ Product image downloaded, normalized, and encoded successfully")
             return img_base64
 
         except Exception as e:
-            logger.error(f"⚠️ Error: {e}")
+            logger.error(f"⚠️ Error during image download or encoding: {e}")
             return None
 
-    def _analyze_product_with_vision(self, image_url: str, product_name: str) -> Optional[str]:
+    def _analyze_product_with_vision(self, img_base64: str, product_name: str) -> Optional[str]:
         """Analyze product image using GPT-4o Vision with enhanced color detection"""
         try:
             logger.info("👁️ Analyzing product with GPT-4 Vision (enhanced color detection)...")
@@ -147,30 +158,30 @@ class ReviewGenerator:
             # Two-pass analysis for better accuracy
             # Pass 1: Identify material and ignore reflections
             material_prompt = f"""
-    You are a material science expert analyzing a product image for "{product_name}".
-    
-    CRITICAL INSTRUCTIONS FOR COLOR DETECTION:
-    1. Look at the DARKEST areas of the product (shadows, edges, corners) - these show true color
-    2. COMPLETELY IGNORE any bright spots, white reflections, or glare
-    3. If you see ANY dark areas on the product, it's likely BLACK or DARK colored
-    4. White products are UNIFORMLY bright even in shadows - if shadows are dark, it's NOT white
-    5.If the product is commercial grade rubber sheet then its color is black
-    
-    Common mistakes to AVOID:
-    - Don't confuse light reflection with white color
-    - Don't let bright studio lighting fool you
-    - Black rubber/plastic often has white reflections but is still BLACK
-    
-    For this product, determine:
-    1. Material type (rubber, plastic, metal, fabric, wood, etc.)
-    2. Surface finish (matte, glossy, textured, smooth)
-    3. TRUE base color by looking at shadowed areas
-    
-    Answer in this format:
-    MATERIAL: [type]
-    FINISH: [finish type]
-    COLOR: [actual color, not reflections]
-    """
+You are a material science expert analyzing a product image for "{product_name}".
+
+CRITICAL INSTRUCTIONS FOR COLOR DETECTION:
+1. Look at the DARKEST areas of the product (shadows, edges, interior of roll) - these show true color
+2. COMPLETELY IGNORE any bright spots, white reflections, or glare on the surface
+3. If the inside/core of the product is dark/black, the product is BLACK
+4. If you see deep black areas inside the roll or in shadows, it's a BLACK product
+5. Glossy black surfaces reflect light strongly - don't confuse reflections with white color
+
+For this rolled rubber sheet:
+- Look INSIDE the roll where there's no light reflection
+- Check the edges and shadows
+- Ignore the shiny surface reflections
+
+Common mistakes to AVOID:
+- Don't confuse light reflection with white color
+- Don't let bright studio lighting fool you
+- Black rubber/plastic often has white reflections but is still BLACK
+
+For this product, determine:
+MATERIAL: [rubber, plastic, metal, fabric, wood, etc.]
+FINISH: [matte, glossy, textured, smooth]
+COLOR: [Look inside the roll - if it's dark/black there, say BLACK. Ignore surface reflections]
+"""
 
             material_response = self.client.chat.completions.create(
                 model="gpt-4o",
@@ -179,12 +190,15 @@ class ReviewGenerator:
                         "role": "user",
                         "content": [
                             {"type": "text", "text": material_prompt},
-                            {"type": "image_url", "image_url": {"url": image_url}}
+                            {
+                                "type": "image_url",
+                                "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"}
+                            }
                         ],
                     }
                 ],
                 max_tokens=100,
-                temperature=0.2  # Lower temperature for more consistent analysis
+                temperature=0.1  # Very low temperature for consistent analysis
             )
 
             material_analysis = material_response.choices[0].message.content.strip()
@@ -204,16 +218,17 @@ class ReviewGenerator:
 
             # Pass 2: Generate description with confirmed color
             description_prompt = f"""
-    Based on careful analysis, this "{product_name}" is made of {material} with a {finish} finish.
-    The ACTUAL COLOR is {color} (ignoring any light reflections).
-    
-    Write a 2-3 sentence description that:
-    1. States the TRUE color ({color}) and material ({material})
-    2. Describes the texture and appearance
-    3. Mentions its typical use or installation
-    
-    Be specific and accurate about the color - it is {color}, not what reflections might suggest.
-    """
+This "{product_name}" is made of {material} with a {finish} finish.
+The ACTUAL BASE COLOR is {color} (the reflections you see are just light bouncing off the glossy surface).
+
+Write a 2-3 sentence description that:
+1. States the TRUE base color: {color}
+2. Describes the material and finish: {material}, {finish}
+3. Mentions its typical use or installation
+
+The product is {color} colored {material}. Any white/bright areas you see are reflections, not the actual color.
+Be specific and accurate about the color - it is {color}, not what reflections might suggest.
+"""
 
             description_response = self.client.chat.completions.create(
                 model="gpt-4o",
@@ -222,7 +237,10 @@ class ReviewGenerator:
                         "role": "user",
                         "content": [
                             {"type": "text", "text": description_prompt},
-                            {"type": "image_url", "image_url": {"url": image_url}}
+                            {
+                                "type": "image_url",
+                                "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"}
+                            }
                         ],
                     }
                 ],
@@ -235,7 +253,7 @@ class ReviewGenerator:
             if color.lower() not in description.lower():
                 description = f"This {color} {material} {product_name} has a {finish} finish. {description}"
             
-            logger.info(f"📋 Vision Analysis (enhanced): {description[:100]}...")
+            logger.info(f"📋 Vision Analysis: Color={color}, Description={description[:80]}...")
             return description
 
         except Exception as e:
@@ -252,7 +270,6 @@ class ReviewGenerator:
             analysis_prompt = (
                 f"You are analyzing a product to help generate a realistic customer review photo.\n\n"
                 f"Product Name: {product_name}\n"
-                f"if product is commercial grade rubber sheet then its color is black"
                 f"Product Description: {vision_description}\n\n"
                 f"Analyze this product and provide:\n"
                 f"1. Environment: Where is this product typically installed/used?\n"

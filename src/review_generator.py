@@ -132,24 +132,28 @@ class ReviewGenerator:
     
         
     # 
-    def _analyze_product_with_vision(self, image_url: str, product_name: str) -> Optional[str]:
-        """Analyze product image using GPT-4o Vision (fixed image_url format)"""
+    def _analyze_product_with_vision(self, img_base64: str, product_name: str) -> Optional[str]:
+        """Analyze product image using GPT-4o Vision (color-accurate version)"""
         try:
-            logger.info("👁️ Analyzing product with GPT-4 Vision (fixed image_url object)...")
+            logger.info("👁️ Analyzing product with GPT-4 Vision (color-verified)...")
 
             prompt = f"""
-    You are analyzing an image of a real product called "{product_name}".
-    Focus ONLY on the main object in the image (the product itself), ignoring all backgrounds, reflections, or highlights.
+    You are analyzing a real photo of a product called "{product_name}".
 
-    Describe in **2–3 sentences**:
-    1. The TRUE BASE COLOR and TONE of the product's surface (not reflections, not background).
-    - If you see strong white reflections or glare, ignore them.
-    - If the surface appears dark or matte, assume it is **dark-colored or black**, not white.
-    - If unsure between black and white, prefer **black or dark grey** for rubber, flooring, or metal items.
-    2. The material type (e.g., rubber, metal, fabric) and texture (matte, glossy, rough).
-    3. Its general use or installation method (what it’s used for).
+    Your task is to describe the **true base color** and **material** of the product only.
+    Follow these strict rules:
 
-    Be highly skeptical of bright light or glossy reflections — do not call something "white" unless it is clearly pure white even in shadowed areas.
+    1. Ignore any reflections, lighting glare, shadows, or bright spots — they do NOT indicate actual color.
+    2. Focus on the areas in shadow or midtone to find the **true surface color**.
+    3. If the surface looks matte, textured, or rubber-like, it is almost certainly **black or very dark**, NOT grey or white.
+    4. Never call the product "white" or "light grey" unless even the shaded areas are truly white.
+    5. Prefer “black” over “grey” when uncertain for materials like rubber, plastic, metal, or flooring.
+    6. Be concise: describe only the product, not the background.
+
+    Return 2–3 short sentences:
+    - The exact color and tone (e.g., “deep matte black rubber,” “dark charcoal metal”)
+    - Material and texture
+    - Likely use or installation context
     """
 
             response = self.client.chat.completions.create(
@@ -159,15 +163,24 @@ class ReviewGenerator:
                         "role": "user",
                         "content": [
                             {"type": "text", "text": prompt},
-                            {"type": "image_url", "image_url": {"url": image_url}}
+                            {
+                                "type": "image_url",
+                                "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"}
+                            },
                         ],
                     }
                 ],
                 max_tokens=180,
+                temperature=0.2
             )
 
             description = response.choices[0].message.content.strip()
-            logger.info(f"📋 Vision Analysis (fixed): {description[:100]}...")
+
+            # Small normalization: replace "dark grey" → "black" if matte/rubber is detected
+            if any(word in description.lower() for word in ["matte", "rubber", "non-reflective"]) and "grey" in description.lower():
+                description = description.replace("grey", "black").replace("gray", "black")
+
+            logger.info(f"📋 Vision Analysis (color-fixed): {description[:100]}...")
             return description
 
         except Exception as e:

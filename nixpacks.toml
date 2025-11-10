@@ -1,3 +1,6 @@
+# nixpacks.toml - Railway Configuration
+# Fixed for Pillow/PIL image processing
+
 [phases.setup]
 nixPkgs = [
   "python312",
@@ -6,18 +9,29 @@ nixPkgs = [
   "freetype",
   "harfbuzz",
   "fontconfig",
-  "libjpeg",
+  "libjpeg_turbo",  # Changed from libjpeg
   "zlib",
   "libpng",
   "libtiff",
-  "libwebp"
+  "libwebp",
+  "gcc",            # Add compiler for Pillow
+  "pkg-config"      # Add pkg-config for library detection
 ]
 
 [phases.install]
 cmds = [
   "pip install --upgrade pip setuptools wheel",
-  "pip install -r requirements.txt"
+  "pip uninstall -y pillow || true",  # Remove old pillow if exists
+  "pip install --no-cache-dir pillow",  # Reinstall with fresh build
+  "pip install -r requirements.txt",
+  "playwright install chromium",  # Ensure chromium is installed
+  "playwright install-deps chromium"  # Install chromium dependencies
 ]
 
 [start]
 cmd = "python app.py"
+
+# Environment variables (optional but recommended)
+[variables]
+PYTHONUNBUFFERED = "1"
+PLAYWRIGHT_BROWSERS_PATH = "0"

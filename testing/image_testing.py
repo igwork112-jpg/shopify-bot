@@ -16,7 +16,7 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 TEST_PRODUCT = {
     "name": "Commercial Grade Rubber Sheet – Linear Meter",
     "image_url": "https://rubberco.co.uk/cdn/shop/products/commercial-grade-rubber-sheet-linear-meter-888058_720x.jpg?v=1662146059",
-    "description": "Black rubber sheet sold by the metre, heavy-duty industrial floor/lining material"
+    "description": "rubber sheet sold by the metre, heavy-duty industrial floor/lining material"
 }
 
 def download_and_encode_image(image_url: str) -> str:

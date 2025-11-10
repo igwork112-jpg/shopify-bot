@@ -1,206 +1,298 @@
 """
-Debug script for failed stores
+Color Detection Test Suite
+Tests multiple methods for accurate product color identification
 """
 
-from playwright.sync_api import sync_playwright
-import time
+import cv2
+import numpy as np
+import requests
+from io import BytesIO
+from PIL import Image
+import base64
+from typing import Dict, Optional, Tuple
 
-FAILED_STORES = [
-    "https://expressmatting.co.uk",
-    "https://www.floorsafetyuk.co.uk",
-    "https://barriersco.co.uk"
-]
-
-def debug_store(page, store_url):
-    """Deep debug of a store"""
-    print(f"\n{'='*80}", flush=True)
-    print(f"DEBUGGING: {store_url}", flush=True)
-    print('='*80, flush=True)
+class ColorDetectionTester:
+    """Test suite for product color detection methods"""
     
-    try:
-        # Step 1: Go to /collections
-        collections_url = f"{store_url.rstrip('/')}/collections"
-        print(f"\n📍 Loading: {collections_url}", flush=True)
+    def __init__(self):
+        self.test_results = []
+    
+    # ========== METHOD 1: TEXT EXTRACTION ==========
+    def test_text_extraction(self, product_name: str, description: str, html: str = "") -> str:
+        """Method 1: Extract color from text (most reliable)"""
+        print("\n" + "="*60)
+        print("METHOD 1: TEXT EXTRACTION")
+        print("="*60)
         
-        page.goto(collections_url, wait_until="domcontentloaded", timeout=30000)
-        time.sleep(3)
-        print("✅ Collections page loaded", flush=True)
+        combined_text = f"{product_name} {description} {html}".lower()
         
-        # Step 2: Find ALL collection links
-        print(f"\n🔍 Finding collection links...", flush=True)
+        color_keywords = {
+            'black': ['black', 'noir', 'schwarz', 'negro'],
+            'white': ['white', 'blanc', 'weiß', 'blanco'],
+            'grey': ['grey', 'gray', 'gris'],
+            'red': ['red', 'rouge', 'rot', 'rojo'],
+            'blue': ['blue', 'bleu', 'blau', 'azul'],
+            'green': ['green', 'vert', 'grün', 'verde'],
+            'yellow': ['yellow', 'jaune', 'gelb', 'amarillo'],
+            'brown': ['brown', 'brun', 'braun', 'marrón'],
+        }
         
-        all_links = page.query_selector_all('a')
-        print(f"   Total links on page: {len(all_links)}", flush=True)
+        found_colors = []
+        for color, keywords in color_keywords.items():
+            for keyword in keywords:
+                if keyword in combined_text:
+                    found_colors.append((color, keyword))
+                    print(f"✅ Found: '{keyword}' → {color}")
         
-        collection_links = []
-        for link in all_links:
-            href = link.get_attribute('href')
-            if href and '/collections/' in href and href != '/collections':
-                if not href.startswith('http'):
-                    href = store_url.rstrip('/') + href
-                href = href.split('?')[0].split('#')[0]
-                if href not in collection_links:
-                    collection_links.append(href)
+        if found_colors:
+            result = found_colors[0][0]  # First match wins
+            print(f"\n🎯 TEXT RESULT: {result.upper()}")
+            return result
+        else:
+            print("❌ No color found in text")
+            return "unknown"
+    
+    # ========== METHOD 2: HISTOGRAM ANALYSIS ==========
+    def test_histogram_analysis(self, image_url: str) -> str:
+        """Method 2: Brightness-based histogram analysis"""
+        print("\n" + "="*60)
+        print("METHOD 2: HISTOGRAM ANALYSIS")
+        print("="*60)
         
-        print(f"   Collection links found: {len(collection_links)}", flush=True)
-        
-        if not collection_links:
-            print("   ❌ No collection links found!", flush=True)
-            return
-        
-        # Show first 5 collections
-        print(f"\n📋 First 5 collections:", flush=True)
-        for i, url in enumerate(collection_links[:5]):
-            print(f"   {i+1}. {url}", flush=True)
-        
-        # Step 3: Try loading first collection
-        first_collection = collection_links[0]
-        print(f"\n🛍️ Loading first collection: {first_collection}", flush=True)
-        
-        page.goto(first_collection, wait_until="domcontentloaded", timeout=30000)
-        time.sleep(3)
-        print("✅ Collection page loaded", flush=True)
-        
-        # Step 4: Debug product finding
-        print(f"\n🔍 Debugging product search...", flush=True)
-        
-        # Try multiple selectors
-        product_selectors = [
-            'a[href*="/products/"]',
-            '.product-item a',
-            '.product-card a',
-            '.grid-item a',
-            'a.product-link',
-            '[class*="product"] a[href*="/products/"]',
-        ]
-        
-        for selector in product_selectors:
-            try:
-                elements = page.query_selector_all(selector)
-                if elements:
-                    print(f"   Selector: {selector}", flush=True)
-                    print(f"   Found: {len(elements)} elements", flush=True)
-                    
-                    # Check first element
-                    if elements:
-                        href = elements[0].get_attribute('href')
-                        print(f"   First href: {href}", flush=True)
-            except Exception as e:
-                print(f"   Error with {selector}: {e}", flush=True)
-        
-        # Try getting ALL links and filtering
-        print(f"\n📊 Analyzing all links on collection page...", flush=True)
-        all_links = page.query_selector_all('a')
-        print(f"   Total links: {len(all_links)}", flush=True)
-        
-        product_links = []
-        for link in all_links:
-            href = link.get_attribute('href')
-            if href and '/products/' in href:
-                if not href.startswith('http'):
-                    href = store_url.rstrip('/') + href
-                href = href.split('?')[0].split('#')[0]
-                if href not in product_links:
-                    product_links.append(href)
-        
-        print(f"   Product links found: {len(product_links)}", flush=True)
-        
-        if not product_links:
-            print("   ❌ NO PRODUCTS FOUND!", flush=True)
-            print("   Possible reasons:", flush=True)
-            print("   - Collection is empty", flush=True)
-            print("   - Products use different URL structure", flush=True)
-            print("   - Need to scroll/load more", flush=True)
+        try:
+            # Download image
+            response = requests.get(image_url, timeout=15)
+            img = Image.open(BytesIO(response.content)).convert('RGB')
             
-            # Try scrolling
-            print(f"\n🔄 Trying to scroll and load more...", flush=True)
-            for i in range(10):
-                page.evaluate(f"window.scrollTo(0, {i * 500});")
-                time.sleep(0.5)
+            # Convert to grayscale
+            gray = img.convert('L')
+            pixels = list(gray.getdata())
             
-            time.sleep(2)
+            # Calculate metrics
+            avg_brightness = sum(pixels) / len(pixels)
+            histogram = gray.histogram()
             
-            # Try again
-            all_links = page.query_selector_all('a')
-            product_links = []
-            for link in all_links:
-                href = link.get_attribute('href')
-                if href and '/products/' in href:
-                    if not href.startswith('http'):
-                        href = store_url.rstrip('/') + href
-                    href = href.split('?')[0].split('#')[0]
-                    if href not in product_links:
-                        product_links.append(href)
+            # Count dark vs light pixels
+            dark_pixels = sum(histogram[0:86])      # 0-85: dark
+            light_pixels = sum(histogram[170:256])  # 170-255: light
+            mid_pixels = sum(histogram[86:170])     # 86-169: mid
             
-            print(f"   After scrolling: {len(product_links)} products", flush=True)
-        
-        if product_links:
-            print(f"\n📦 First 3 products:", flush=True)
-            for i, url in enumerate(product_links[:3]):
-                print(f"   {i+1}. {url}", flush=True)
+            total = len(pixels)
+            dark_ratio = dark_pixels / total
+            light_ratio = light_pixels / total
+            mid_ratio = mid_pixels / total
             
-            # Step 5: Load product and check for Loox
-            first_product = product_links[0]
-            print(f"\n🧩 Loading product: {first_product}", flush=True)
+            print(f"📊 Average Brightness: {avg_brightness:.1f} / 255")
+            print(f"📊 Dark pixels (0-85): {dark_ratio:.1%}")
+            print(f"📊 Mid pixels (86-169): {mid_ratio:.1%}")
+            print(f"📊 Light pixels (170-255): {light_ratio:.1%}")
             
-            page.goto(first_product, wait_until="domcontentloaded", timeout=30000)
-            time.sleep(3)
-            print("✅ Product page loaded", flush=True)
-            
-            # Check for Loox
-            print(f"\n🔍 Checking for review systems...", flush=True)
-            
-            # Scroll to load reviews
-            for i in range(10):
-                page.evaluate(f"window.scrollTo(0, {i * 500});")
-                time.sleep(0.5)
-            
-            time.sleep(3)
-            
-            # Check for Loox
-            loox_iframe = page.query_selector('iframe#looxReviewsFrame')
-            if loox_iframe:
-                print("   ✅ LOOX FOUND!", flush=True)
+            # Decision logic
+            if dark_ratio > 0.4 or avg_brightness < 85:
+                result = "black"
+                print(f"\n🎯 HISTOGRAM RESULT: {result.upper()} (High dark ratio or low brightness)")
+            elif light_ratio > 0.4 or avg_brightness > 170:
+                result = "white"
+                print(f"\n🎯 HISTOGRAM RESULT: {result.upper()} (High light ratio or high brightness)")
+            elif avg_brightness < 130:
+                result = "dark grey"
+                print(f"\n🎯 HISTOGRAM RESULT: {result.upper()} (Medium-low brightness)")
             else:
-                print("   ❌ Loox not found", flush=True)
-                
-                # Check for other review systems
-                print(f"\n🔍 Checking for other review iframes...", flush=True)
-                all_iframes = page.query_selector_all('iframe')
-                print(f"   Total iframes: {len(all_iframes)}", flush=True)
-                
-                for i, iframe in enumerate(all_iframes):
-                    iframe_id = iframe.get_attribute('id') or 'no-id'
-                    iframe_src = iframe.get_attribute('src') or 'no-src'
-                    print(f"   {i+1}. ID: {iframe_id}, SRC: {iframe_src[:60]}...", flush=True)
-        
-    except Exception as e:
-        print(f"\n❌ Error: {e}", flush=True)
-        import traceback
-        traceback.print_exc()
-
-def main():
-    print("="*80, flush=True)
-    print("DEBUGGING FAILED STORES", flush=True)
-    print("="*80, flush=True)
-    print(f"Investigating {len(FAILED_STORES)} stores\n", flush=True)
+                result = "grey"
+                print(f"\n🎯 HISTOGRAM RESULT: {result.upper()} (Medium brightness)")
+            
+            return result
+            
+        except Exception as e:
+            print(f"❌ Histogram analysis failed: {e}")
+            return "unknown"
     
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
-        page = browser.new_page()
-        page.set_default_timeout(30000)
+    # ========== METHOD 3: DOMINANT COLOR (OpenCV + KMeans) ==========
+    def test_dominant_color_extraction(self, image_url: str) -> Tuple[str, Optional[Dict]]:
+        """Method 3: Extract dominant color using KMeans clustering"""
+        print("\n" + "="*60)
+        print("METHOD 3: DOMINANT COLOR EXTRACTION (OpenCV + KMeans)")
+        print("="*60)
         
-        for store in FAILED_STORES:
-            debug_store(page, store)
-            print(f"\n{'='*80}", flush=True)
-            input("Press Enter to continue to next store...")
-        
-        browser.close()
+        try:
+            # Download and convert image
+            response = requests.get(image_url, timeout=15)
+            img_pil = Image.open(BytesIO(response.content)).convert('RGB')
+            img_cv = cv2.cvtColor(np.array(img_pil), cv2.COLOR_RGB2BGR)
+            
+            # Convert to HSV for glare detection
+            hsv = cv2.cvtColor(img_cv, cv2.COLOR_BGR2HSV)
+            v = hsv[:, :, 2]  # Value channel (brightness)
+            s = hsv[:, :, 1]  # Saturation channel
+            
+            # Create mask to remove glossy reflections
+            # Glare = very bright (v > 220) + low saturation (s < 40)
+            gloss_mask = (v > 220) & (s < 40)
+            gloss_mask = gloss_mask.astype(np.uint8) * 255
+            
+            print(f"📊 Glare pixels detected: {np.sum(gloss_mask > 0)} / {gloss_mask.size}")
+            
+            # Invert mask to keep non-glossy areas
+            non_gloss_mask = cv2.bitwise_not(gloss_mask)
+            
+            # Apply mask
+            masked = cv2.bitwise_and(img_cv, img_cv, mask=non_gloss_mask)
+            
+            # Reshape for clustering
+            pixels = masked.reshape(-1, 3)
+            pixels = pixels[np.any(pixels != [0, 0, 0], axis=1)]  # Remove black pixels
+            
+            if len(pixels) == 0:
+                print("❌ No valid pixels after masking")
+                return "unknown", None
+            
+            print(f"📊 Valid pixels for analysis: {len(pixels)}")
+            
+            # KMeans clustering to find dominant colors
+            from sklearn.cluster import KMeans
+            kmeans = KMeans(n_clusters=3, random_state=42, n_init=10).fit(pixels)
+            
+            # Get cluster centers and their sizes
+            labels = kmeans.labels_
+            centers = kmeans.cluster_centers_
+            
+            # Count pixels in each cluster
+            unique, counts = np.unique(labels, return_counts=True)
+            
+            # Find the largest cluster (most dominant color)
+            dominant_idx = np.argmax(counts)
+            dominant_bgr = centers[dominant_idx]
+            
+            # Convert BGR to RGB
+            b, g, r = [int(c) for c in dominant_bgr]
+            hex_color = '#%02x%02x%02x' % (r, g, b)
+            
+            print(f"\n🎨 Dominant Color (RGB): ({r}, {g}, {b})")
+            print(f"🎨 Dominant Color (HEX): {hex_color}")
+            print(f"🎨 Pixel count: {counts[dominant_idx]} ({counts[dominant_idx]/len(pixels)*100:.1f}%)")
+            
+            # Interpret color name from RGB
+            color_name = self._rgb_to_color_name(r, g, b)
+            print(f"\n🎯 DOMINANT COLOR RESULT: {color_name.upper()}")
+            
+            color_info = {
+                "r": r,
+                "g": g,
+                "b": b,
+                "hex": hex_color,
+                "name": color_name,
+                "percentage": counts[dominant_idx]/len(pixels)*100
+            }
+            
+            return color_name, color_info
+            
+        except Exception as e:
+            print(f"❌ Dominant color extraction failed: {e}")
+            return "unknown", None
     
-    print("\n✅ Debug complete!", flush=True)
+    def _rgb_to_color_name(self, r: int, g: int, b: int) -> str:
+        """Convert RGB to approximate color name"""
+        # Calculate brightness
+        brightness = (r + g + b) / 3
+        
+        # Check if grayscale (low color variation)
+        color_diff = max(r, g, b) - min(r, g, b)
+        
+        if color_diff < 30:  # Grayscale
+            if brightness < 50:
+                return "black"
+            elif brightness < 100:
+                return "dark grey"
+            elif brightness < 180:
+                return "grey"
+            else:
+                return "white"
+        
+        # Color detection
+        if r > g and r > b:
+            if r - max(g, b) > 50:
+                return "red"
+            else:
+                return "brown"
+        elif g > r and g > b:
+            return "green"
+        elif b > r and b > g:
+            return "blue"
+        elif r > 200 and g > 200 and b < 100:
+            return "yellow"
+        else:
+            return "mixed color"
+    
+    # ========== COMPREHENSIVE TEST ==========
+    def run_all_tests(self, product_name: str, product_description: str, 
+                     image_url: str, page_html: str = ""):
+        """Run all three methods and compare results"""
+        print("\n" + "🔬"*30)
+        print("COMPREHENSIVE COLOR DETECTION TEST")
+        print("🔬"*30)
+        print(f"\n📦 Product: {product_name}")
+        print(f"🔗 Image URL: {image_url[:60]}...")
+        
+        # Test all methods
+        text_color = self.test_text_extraction(product_name, product_description, page_html)
+        histogram_color = self.test_histogram_analysis(image_url)
+        dominant_color, color_info = self.test_dominant_color_extraction(image_url)
+        
+        # Summary
+        print("\n" + "="*60)
+        print("FINAL RESULTS SUMMARY")
+        print("="*60)
+        print(f"Method 1 (Text):            {text_color.upper()}")
+        print(f"Method 2 (Histogram):       {histogram_color.upper()}")
+        print(f"Method 3 (Dominant Color):  {dominant_color.upper()}")
+        
+        # Determine final color with priority
+        if text_color != "unknown":
+            final = text_color
+            source = "Text (Priority 1)"
+        elif dominant_color != "unknown":
+            final = dominant_color
+            source = "Dominant Color (Priority 2)"
+        elif histogram_color != "unknown":
+            final = histogram_color
+            source = "Histogram (Priority 3)"
+        else:
+            final = "black"
+            source = "Default Fallback"
+        
+        print("\n" + "🎯"*30)
+        print(f"FINAL COLOR: {final.upper()} (from {source})")
+        print("🎯"*30)
+        
+        return {
+            "text_color": text_color,
+            "histogram_color": histogram_color,
+            "dominant_color": dominant_color,
+            "color_info": color_info,
+            "final_color": final,
+            "source": source
+        }
 
+
+# ========== USAGE EXAMPLE ==========
 if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("\n⚠️ Interrupted by user", flush=True)
+    # Test with the rubber sheet product
+    tester = ColorDetectionTester()
+    
+    # Example 1: Black rubber sheet
+    print("\n🧪 TEST 1: Black Rubber Sheet")
+    results1 = tester.run_all_tests(
+        product_name="Commercial Grade Rubber Sheet - Black",
+        product_description="Heavy duty black rubber sheeting for commercial use",
+        image_url="https://rubberco.co.uk/cdn/shop/files/raw_1817d421-298c-416f-984d-c5f1c869d440_720x.png?v=1755808224",
+        page_html="<h1>Commercial Grade Rubber Sheet 1.5mm-25mm, 1.4m Wide Heavy Duty Black</h1>"
+    )
+    
+    print("\n" + "="*60)
+    print("Test 1 Complete!")
+    print(f"Detected Color: {results1['final_color']}")
+    print(f"Color Info: {results1['color_info']}")
+    
+    # You can add more test cases here
+    # Example 2: Test with another product
+    # results2 = tester.run_all_tests(...)

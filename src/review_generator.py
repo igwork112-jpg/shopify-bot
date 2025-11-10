@@ -1,10 +1,12 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 import random
 import base64
 import requests
 from pathlib import Path
 from io import BytesIO
 from PIL import Image
+import cv2
+import numpy as np
 from openai import OpenAI
 from config.settings import settings
 from utils.logger import logger
@@ -18,8 +20,7 @@ class ReviewGenerator:
         self.temp_dir = settings.TEMP_DIR
     
     def generate(self, product_name: str, product_description: str = "", 
-                 product_image_url: str = None, with_image: bool = True, 
-                 page_html: str = "") -> Dict:
+                 product_image_url: str = None, with_image: bool = True) -> Dict:
         """Generate a realistic review with context and optional AI image"""
         rating = random.choices([5, 6], weights=[1, 99])[0]
         
@@ -36,8 +37,7 @@ class ReviewGenerator:
                 image_path = self.generate_review_image_with_vision(
                     product_name, 
                     product_image_url,
-                    product_description,
-                    page_html
+                    product_description
                 )
                 review_data['image_path'] = image_path
             except Exception as e:
@@ -50,47 +50,46 @@ class ReviewGenerator:
     
     def generate_review_image_with_vision(self, product_name: str, 
                                          product_image_url: str,
-                                         product_description: str = "",
-                                         page_html: str = "") -> Optional[Path]:
+                                         product_description: str = "") -> Optional[Path]:
         """
-        Complete workflow: Color Detection → Vision Analysis → Image Generation
+        Complete workflow: Download → Dominant Color Detection → Vision Analysis → Image Generation
         """
         try:
             logger.info("🎨 Starting AI review image generation workflow...")
             
-            # Step 1: Extract color from product page (most reliable)
-            page_color = self._extract_color_from_text(product_name, product_description, page_html)
-            logger.info(f"🎨 Color from page text: {page_color}")
-            
-            # Step 2: Download and encode product image
-            img_base64, img_pil = self._download_and_encode_image(product_image_url)
-            if not img_base64:
+            # Step 1: Download product image
+            img_pil = self._download_image(product_image_url)
+            if not img_pil:
                 logger.error("Failed to download product image")
                 return None
             
-            # Step 3: Detect color using histogram (backup method)
-            histogram_color = self._detect_color_from_histogram(img_pil)
-            logger.info(f"📊 Color from histogram: {histogram_color}")
+            # Step 2: Extract dominant color (MOST ACCURATE METHOD)
+            color_name, color_info = self._extract_dominant_color(img_pil)
+            logger.success(f"✅ Detected color: {color_name.upper()} {color_info['hex']}")
             
-            # Step 4: Determine the most reliable color
-            final_color = self._resolve_color(page_color, histogram_color)
-            logger.success(f"✅ Final color determined: {final_color}")
+            # Step 3: Convert image to base64 for GPT-4 Vision
+            img_base64 = self._pil_to_base64(img_pil)
             
-            # Step 5: Analyze product with GPT-4 Vision
-            vision_description = self._analyze_product_with_vision(img_base64, product_name, final_color)
+            # Step 4: Analyze product with GPT-4 Vision (with color hint)
+            vision_description = self._analyze_product_with_vision(
+                img_base64, 
+                product_name, 
+                color_name,
+                color_info
+            )
             if not vision_description:
                 logger.warning("Vision analysis failed, using description fallback")
-                vision_description = product_description[:200] if product_description else f"This is a {final_color} {product_name}"
+                vision_description = f"This is a {color_name} {product_description[:150] if product_description else product_name}"
             
-            # Step 6: Ensure color is in the description
-            if final_color not in vision_description.lower():
-                logger.warning(f"⚠️ Injecting correct color ({final_color}) into description")
-                vision_description = f"This is a {final_color} {vision_description}"
+            # Step 5: Create customer photo prompt with exact color
+            customer_photo_prompt = self._create_customer_photo_prompt(
+                product_name, 
+                vision_description, 
+                color_name,
+                color_info
+            )
             
-            # Step 7: Create customer photo prompt
-            customer_photo_prompt = self._create_customer_photo_prompt(product_name, vision_description, final_color)
-            
-            # Step 8: Generate customer photo with GPT-Image-1
+            # Step 6: Generate customer photo with GPT-Image-1
             image_path = self._generate_with_gpt_image_1(customer_photo_prompt, product_name)
             
             if image_path:
@@ -102,113 +101,141 @@ class ReviewGenerator:
             logger.error(f"Error in image generation workflow: {e}")
             return None
     
-    def _extract_color_from_text(self, product_name: str, description: str, page_html: str) -> str:
-        """Extract color from product name, description, or HTML (most reliable method)"""
-        try:
-            logger.info("🔍 Extracting color from text sources...")
-            
-            # Combine all text sources
-            combined_text = f"{product_name} {description} {page_html}".lower()
-            
-            # Define color keywords with priority
-            color_keywords = {
-                'black': ['black', 'noir', 'schwarz'],
-                'white': ['white', 'blanc', 'weiß'],
-                'grey': ['grey', 'gray', 'gris'],
-                'red': ['red', 'rouge', 'rot'],
-                'blue': ['blue', 'bleu', 'blau'],
-                'green': ['green', 'vert', 'grün'],
-                'yellow': ['yellow', 'jaune', 'gelb'],
-                'brown': ['brown', 'brun', 'braun'],
-            }
-            
-            # Check for color mentions
-            for color, keywords in color_keywords.items():
-                for keyword in keywords:
-                    if keyword in combined_text:
-                        logger.info(f"✅ Found color keyword: '{keyword}' → {color}")
-                        return color
-            
-            logger.warning("⚠️ No color found in text sources")
-            return 'unknown'
-            
-        except Exception as e:
-            logger.error(f"Color extraction from text failed: {e}")
-            return 'unknown'
-    
-    def _detect_color_from_histogram(self, img: Image.Image) -> str:
-        """Detect if product is predominantly black, white, or other color using histogram"""
-        try:
-            logger.info("📊 Analyzing image histogram...")
-            
-            # Convert to grayscale for brightness analysis
-            gray = img.convert('L')
-            pixels = list(gray.getdata())
-            
-            # Calculate average brightness (0=black, 255=white)
-            avg_brightness = sum(pixels) / len(pixels)
-            
-            # Get histogram
-            histogram = gray.histogram()
-            
-            # Count dark pixels (0-85) vs light pixels (170-255)
-            dark_pixels = sum(histogram[0:86])
-            light_pixels = sum(histogram[170:256])
-            mid_pixels = sum(histogram[86:170])
-            
-            total_pixels = len(pixels)
-            dark_ratio = dark_pixels / total_pixels
-            light_ratio = light_pixels / total_pixels
-            
-            logger.info(f"📊 Brightness: {avg_brightness:.1f}, Dark: {dark_ratio:.2%}, Light: {light_ratio:.2%}")
-            
-            # Decision logic
-            if dark_ratio > 0.4 or avg_brightness < 85:
-                return "black"
-            elif light_ratio > 0.4 or avg_brightness > 170:
-                return "white"
-            elif avg_brightness < 130:
-                return "dark grey"
-            else:
-                return "grey"
-                
-        except Exception as e:
-            logger.error(f"Histogram analysis failed: {e}")
-            return "unknown"
-    
-    def _resolve_color(self, page_color: str, histogram_color: str) -> str:
-        """Resolve the final color using priority: page_color > histogram_color"""
-        
-        # Priority 1: Page text (most reliable)
-        if page_color != 'unknown':
-            logger.info(f"✅ Using page color: {page_color}")
-            return page_color
-        
-        # Priority 2: Histogram analysis
-        if histogram_color != 'unknown':
-            logger.info(f"✅ Using histogram color: {histogram_color}")
-            return histogram_color
-        
-        # Fallback: assume black for rubber/flooring products
-        logger.warning("⚠️ No color detected, defaulting to 'black'")
-        return "black"
-    
-    def _download_and_encode_image(self, image_url: str) -> tuple[Optional[str], Optional[Image.Image]]:
-        """Download product image and return both base64 AND PIL Image"""
+    def _download_image(self, image_url: str) -> Optional[Image.Image]:
+        """Download product image and return PIL Image"""
         try:
             logger.info("📥 Downloading product image...")
             
             response = requests.get(image_url, timeout=15)
             if response.status_code != 200:
                 logger.error(f"Failed to download: HTTP {response.status_code}")
-                return None, None
+                return None
             
             # Load and convert image
             img = Image.open(BytesIO(response.content))
             if img.mode != 'RGB':
                 img = img.convert('RGB')
             
-            # Save temporarily
+            logger.success("✅ Product image downloaded")
+            return img
+            
+        except Exception as e:
+            logger.error(f"Error downloading image: {e}")
+            return None
+    
+    def _extract_dominant_color(self, img: Image.Image) -> Tuple[str, Dict]:
+        """
+        Extract dominant color using OpenCV + KMeans (MOST ACCURATE METHOD)
+        Automatically removes glare and reflections
+        """
+        try:
+            logger.info("🎨 Extracting dominant color with KMeans...")
+            
+            # Convert PIL to OpenCV format
+            img_cv = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+            
+            # Convert to HSV for glare detection
+            hsv = cv2.cvtColor(img_cv, cv2.COLOR_BGR2HSV)
+            v = hsv[:, :, 2]  # Value (brightness)
+            s = hsv[:, :, 1]  # Saturation
+            
+            # Create mask to remove glossy reflections
+            # Glare = very bright (v > 220) + low saturation (s < 40)
+            gloss_mask = (v > 220) & (s < 40)
+            gloss_mask = gloss_mask.astype(np.uint8) * 255
+            glare_percentage = (np.sum(gloss_mask > 0) / gloss_mask.size) * 100
+            
+            logger.info(f"📊 Glare pixels removed: {glare_percentage:.1f}%")
+            
+            # Invert mask to keep non-glossy areas
+            non_gloss_mask = cv2.bitwise_not(gloss_mask)
+            
+            # Apply mask
+            masked = cv2.bitwise_and(img_cv, img_cv, mask=non_gloss_mask)
+            
+            # Reshape for clustering
+            pixels = masked.reshape(-1, 3)
+            pixels = pixels[np.any(pixels != [0, 0, 0], axis=1)]  # Remove black background
+            
+            if len(pixels) == 0:
+                logger.warning("⚠️ No valid pixels after masking, using fallback")
+                return "black", {"r": 0, "g": 0, "b": 0, "hex": "#000000"}
+            
+            # KMeans clustering to find dominant colors
+            from sklearn.cluster import KMeans
+            kmeans = KMeans(n_clusters=3, random_state=42, n_init=10).fit(pixels)
+            
+            # Get the most dominant color (largest cluster)
+            labels = kmeans.labels_
+            centers = kmeans.cluster_centers_
+            unique, counts = np.unique(labels, return_counts=True)
+            dominant_idx = np.argmax(counts)
+            dominant_bgr = centers[dominant_idx]
+            
+            # Convert BGR to RGB
+            b, g, r = [int(c) for c in dominant_bgr]
+            hex_color = '#%02x%02x%02x' % (r, g, b)
+            
+            # Interpret color name from RGB
+            color_name = self._rgb_to_color_name(r, g, b)
+            percentage = (counts[dominant_idx] / len(pixels)) * 100
+            
+            logger.info(f"🎨 RGB: ({r}, {g}, {b}) | HEX: {hex_color} | {percentage:.1f}% of pixels")
+            logger.success(f"✅ Color identified: {color_name.upper()}")
+            
+            color_info = {
+                "r": r,
+                "g": g,
+                "b": b,
+                "hex": hex_color,
+                "percentage": percentage
+            }
+            
+            return color_name, color_info
+            
+        except Exception as e:
+            logger.error(f"Dominant color extraction failed: {e}")
+            return "black", {"r": 0, "g": 0, "b": 0, "hex": "#000000"}
+    
+    def _rgb_to_color_name(self, r: int, g: int, b: int) -> str:
+        """Convert RGB to approximate color name"""
+        brightness = (r + g + b) / 3
+        color_diff = max(r, g, b) - min(r, g, b)
+        
+        # Grayscale detection (low color variation)
+        if color_diff < 30:
+            if brightness < 50:
+                return "black"
+            elif brightness < 100:
+                return "dark grey"
+            elif brightness < 180:
+                return "grey"
+            else:
+                return "white"
+        
+        # Color detection
+        if r > g and r > b:
+            if r - max(g, b) > 50:
+                return "red"
+            else:
+                return "brown"
+        elif g > r and g > b:
+            return "green"
+        elif b > r and b > g:
+            return "blue"
+        elif r > 200 and g > 200 and b < 100:
+            return "yellow"
+        elif r > 150 and g < 100 and b > 150:
+            return "purple"
+        elif r > 200 and g > 100 and b < 100:
+            return "orange"
+        else:
+            return "mixed color"
+    
+    def _pil_to_base64(self, img: Image.Image) -> str:
+        """Convert PIL Image to base64 string"""
+        try:
+            # Save to temporary buffer
             temp_path = self.temp_dir / "temp_product.jpg"
             img.save(temp_path, "JPEG", quality=85)
             
@@ -217,18 +244,18 @@ class ReviewGenerator:
                 img_bytes = f.read()
                 img_base64 = base64.b64encode(img_bytes).decode('utf-8')
             
-            # Cleanup temp file
+            # Cleanup
             temp_path.unlink()
             
-            logger.success("✅ Product image downloaded and encoded")
-            return img_base64, img
+            return img_base64
             
         except Exception as e:
-            logger.error(f"Error downloading image: {e}")
-            return None, None
+            logger.error(f"Base64 conversion failed: {e}")
+            return ""
     
-    def _analyze_product_with_vision(self, img_base64: str, product_name: str, known_color: str) -> Optional[str]:
-        """Analyze product image using GPT-4o Vision with color hint"""
+    def _analyze_product_with_vision(self, img_base64: str, product_name: str, 
+                                    color_name: str, color_info: Dict) -> Optional[str]:
+        """Analyze product with GPT-4 Vision, providing the detected color as context"""
         try:
             logger.info("👁️ Analyzing product with GPT-4 Vision...")
             
@@ -242,14 +269,16 @@ class ReviewGenerator:
                                 "type": "text",
                                 "text": f"""Analyze this product image for: {product_name}
 
-IMPORTANT: This product is {known_color.upper()} in color. Ignore any white highlights or reflections - those are just light glare on the surface.
+DETECTED COLOR: {color_name.upper()} (RGB: {color_info['r']}, {color_info['g']}, {color_info['b']})
+
+This color was extracted from the actual product pixels, ignoring reflections and glare.
 
 Describe in 2-3 sentences:
-1. Confirm the color is {known_color} (ignore reflections)
-2. The material type and thickness
+1. Confirm this is a {color_name} product (the color detection is accurate)
+2. The material type, texture, and thickness/size
 3. How it's designed to be installed or used
 
-Focus on the actual material properties, not lighting effects."""
+Focus on material properties and use case, not lighting effects."""
                             },
                             {
                                 "type": "image_url",
@@ -272,25 +301,31 @@ Focus on the actual material properties, not lighting effects."""
             logger.error(f"Vision analysis failed: {e}")
             return None
     
-    def _create_customer_photo_prompt(self, product_name: str, vision_description: str, final_color: str) -> str:
-        """Create prompt for GPT-Image-1 with explicit color enforcement"""
+    def _create_customer_photo_prompt(self, product_name: str, vision_description: str, 
+                                     color_name: str, color_info: Dict) -> str:
+        """Create prompt for GPT-Image-1 with precise color specification"""
         
         prompt = f"""A realistic customer photo showing {product_name} installed in its typical use environment.
 
-CRITICAL COLOR REQUIREMENT: The product MUST be {final_color.upper()} in color. NOT white, NOT light colored, specifically {final_color.upper()}.
+CRITICAL COLOR SPECIFICATION:
+- The product MUST be {color_name.upper()} color
+- Exact RGB color: ({color_info['r']}, {color_info['g']}, {color_info['b']})
+- HEX color: {color_info['hex']}
+- DO NOT use white, light grey, or any other color
+- The {color_name} color must be clearly visible in the photo
 
 Product details: {vision_description}
 
-The photo should show:
-- The {final_color} product clearly visible in proper lighting
-- Appropriate installation location (home/commercial/industrial based on product type)
-- Natural smartphone photography style
-- Real customer perspective, NOT professional marketing photo
-- The {final_color} color must be clearly visible
+Photo requirements:
+- Show the {color_name} {product_name} in its proper installation location
+- Natural lighting (not too bright, not too dark)
+- Smartphone camera quality (not professional photography)
+- Real customer perspective showing the installed product
+- The {color_name} color must match RGB({color_info['r']}, {color_info['g']}, {color_info['b']})
 
-This must look like a genuine customer took this photo with their phone to show how the {final_color} {product_name} looks after installation."""
+This must look like a genuine customer took this photo with their phone to show the installed {color_name} {product_name}."""
         
-        logger.debug(f"🎨 Generated prompt with color: {final_color}")
+        logger.debug(f"🎨 Generated prompt with color: {color_name} {color_info['hex']}")
         return prompt
     
     def _generate_with_gpt_image_1(self, prompt: str, product_name: str) -> Optional[Path]:
@@ -469,5 +504,3 @@ REVIEW: [review text only]"""
             4: ["Good product", "Happy with purchase", "Solid choice", "Works well"],
         }
         return random.choice(titles.get(rating, titles[4]))
-
-

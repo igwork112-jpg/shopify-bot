@@ -1,5 +1,8 @@
 [phases.setup]
-nixPkgs = ["python311", "chromium", "nss", "freetype", "harfbuzz", "ca-certificates", "fontconfig"]
+nixPkgs = ["python311", "chromium", "nss", "freetype", "harfbuzz", "ca-certificates", "fontconfig","libjpeg-dev",
+  "zlib1g-dev",
+  "libpng-dev",
+  "libfreetype6-dev"]
 
 [phases.install]
 cmds = [

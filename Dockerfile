@@ -11,7 +11,10 @@ ENV PYTHONUNBUFFERED=1 \
 # ------------------------------------------------------------
 # 🧰 Install system dependencies for Pillow + Chromium + Playwright
 # ------------------------------------------------------------
+# For OpenCV compatibility
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
     chromium \
     libnss3 \
     libxss1 \
@@ -37,6 +40,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     fontconfig \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
+
 
 WORKDIR /app
 

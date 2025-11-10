@@ -154,6 +154,7 @@ class ReviewGenerator:
     2. COMPLETELY IGNORE any bright spots, white reflections, or glare
     3. If you see ANY dark areas on the product, it's likely BLACK or DARK colored
     4. White products are UNIFORMLY bright even in shadows - if shadows are dark, it's NOT white
+    5.If the product is commercial grade rubber sheet then its color is black
     
     Common mistakes to AVOID:
     - Don't confuse light reflection with white color

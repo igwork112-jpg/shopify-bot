@@ -62,7 +62,7 @@ class ReviewGenerator:
                 return None
             
             # Step 2: Analyze product with GPT-4 Vision (enhanced color detection)
-            vision_description = self._analyze_product_with_vision(img_base64, product_name)
+            vision_description = self._analyze_product_with_vision(product_image_url, product_name)
             if not vision_description:
                 logger.warning("Vision analysis failed, using description fallback")
                 vision_description = product_description[:200] if product_description else f"This is a {product_name}"
@@ -251,6 +251,7 @@ class ReviewGenerator:
             analysis_prompt = (
                 f"You are analyzing a product to help generate a realistic customer review photo.\n\n"
                 f"Product Name: {product_name}\n"
+                f"if product is commercial grade rubber sheet then its color is black"
                 f"Product Description: {vision_description}\n\n"
                 f"Analyze this product and provide:\n"
                 f"1. Environment: Where is this product typically installed/used?\n"

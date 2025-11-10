@@ -46,121 +46,100 @@ class ReviewGenerator:
         
         return review_data
     
-    def generate_review_image_with_vision(self, product_name: str, 
-                                         product_image_url: str,
-                                         product_description: str = "") -> Optional[Path]:
-        """
-        Complete workflow: Download → GPT-4 Vision Analysis → GPT-Image-1 Generation
-        """
-        try:
-            logger.info("🎨 Starting AI review image generation workflow...")
-            
-            # Step 1: Download and encode product image
-            img_base64 = self._download_and_encode_image(product_image_url)
-            if not img_base64:
-                logger.error("Failed to download product image")
-                return None
-            
-            # Step 2: Analyze product with GPT-4 Vision
-            vision_description = self._analyze_product_with_vision(img_base64, product_name)
-            if not vision_description:
-                logger.warning("Vision analysis failed, using description fallback")
-                vision_description = product_description[:200] if product_description else f"This is a {product_name}"
-            
-            # Step 3: Create customer photo prompt
-            customer_photo_prompt = self._create_customer_photo_prompt(product_name, vision_description)
-            
-            # Step 4: Generate customer photo with GPT-Image-1
-            image_path = self._generate_with_gpt_image_1(customer_photo_prompt, product_name)
-            
-            if image_path:
-                logger.success(f"✅ Review image generated: {image_path.name}")
-            
-            return image_path
-            
-        except Exception as e:
-            logger.error(f"Error in image generation workflow: {e}")
-            return None
-    
     def _download_and_encode_image(self, image_url: str) -> Optional[str]:
-        """Download product image and convert to base64 for GPT-4 Vision"""
+        """Download product image, normalize exposure, and convert to base64 for GPT-4 Vision"""
         try:
-            logger.info("📥 Downloading product image...")
-            
+            logger.info("📥 Downloading and preprocessing product image...")
+
+            # Step 1: Download the image
             response = requests.get(image_url, timeout=15)
             if response.status_code != 200:
-                logger.error(f"Failed to download: HTTP {response.status_code}")
+                logger.error(f"❌ Failed to download image: HTTP {response.status_code}")
                 return None
-            
-            # Load and convert image
+
+            # Step 2: Load and verify
             img = Image.open(BytesIO(response.content))
-            if img.mode != 'RGB':
-                img = img.convert('RGB')
-            
-            # Save temporarily
-            temp_path = self.temp_dir / "temp_product.jpg"
-            img.save(temp_path, "JPEG", quality=85)
-            
-            # Convert to base64
+            img.verify()  # quick corruption check
+            img = Image.open(BytesIO(response.content)).convert('RGB')
+
+            # Step 3: Normalize exposure (darken glare, enhance contrast)
+            from PIL import ImageEnhance
+            brightness = ImageEnhance.Brightness(img)
+            img = brightness.enhance(0.85)  # slightly darken overly bright areas
+
+            contrast = ImageEnhance.Contrast(img)
+            img = contrast.enhance(1.25)    # increase contrast to reveal dark tones
+
+            # Step 4: Optional resizing for Vision optimization
+            max_size = (1024, 1024)
+            img.thumbnail(max_size, Image.Resampling.LANCZOS)
+
+            # Step 5: Save temporarily for base64 encoding
+            temp_path = self.temp_dir / "temp_product_preprocessed.jpg"
+            img.save(temp_path, "JPEG", quality=90)
+
+            # Step 6: Convert to base64
             with open(temp_path, "rb") as f:
                 img_bytes = f.read()
                 img_base64 = base64.b64encode(img_bytes).decode('utf-8')
-            
-            # Cleanup temp file
-            temp_path.unlink()
-            
-            logger.success("✅ Product image downloaded and encoded")
+
+            # Step 7: Clean up temp file
+            temp_path.unlink(missing_ok=True)
+
+            logger.success("✅ Product image downloaded, normalized, and encoded successfully")
             return img_base64
-            
+
         except Exception as e:
-            logger.error(f"Error downloading image: {e}")
+            logger.error(f"⚠️ Error during image download or encoding: {e}")
             return None
+
     
         
     def _analyze_product_with_vision(self, img_base64: str, product_name: str) -> Optional[str]:
-        """Analyze product image using GPT-4o-mini Vision"""
+        """Analyze product image using GPT-4o Vision (improved color accuracy)"""
         try:
-            logger.info("👁️ Analyzing product with GPT-4 Vision...")
-            
+            logger.info("👁️ Analyzing product with GPT-4 Vision (enhanced color logic)...")
+
+            prompt = f"""
+    You are analyzing an image of a real product called "{product_name}".
+    Focus ONLY on the main object in the image (the product itself), ignoring all backgrounds, reflections, or highlights.
+
+    Describe in **2–3 sentences**:
+    1. The TRUE BASE COLOR and TONE of the product's surface (not reflections, not background).
+    - If you see strong white reflections or glare, ignore them.
+    - If the surface appears dark or matte, assume it is **dark-colored or black**, not white.
+    - If unsure between black and white, prefer **black or dark grey** for rubber, flooring, or metal items.
+    2. The material type (e.g., rubber, metal, fabric) and texture (matte, glossy, rough).
+    3. Its general use or installation method (what it’s used for).
+
+    Be highly skeptical of bright light or glossy reflections — do not call something "white" unless it is clearly pure white even in shadowed areas.
+    """
+
             response = self.client.chat.completions.create(
                 model="gpt-4o",
                 messages=[
                     {
                         "role": "user",
                         "content": [
-                            {
-                                "type": "text",
-                                "text": f"""Analyze this product image for: {product_name}
-
-
-CRITICAL: Look carefully at the ACTUAL COLOR of the product material itself, not reflections or highlights.
-
-Describe in 2-3 sentences:
-1. The EXACT color of the product  - look at the body of the material, not light reflections
-2. The material type and thickness
-3. How it's designed to be installed or used
-
-Be very precise about color. If you see highlights or reflections or sunlights or anything , ignore those and focus on the base product material color."""
-                            },
+                            {"type": "text", "text": prompt},
                             {
                                 "type": "image_url",
-                                "image_url": {
-                                    "url": f"data:image/jpeg;base64,{img_base64}"
-                                }
-                            }
-                        ]
+                                "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"}
+                            },
+                        ],
                     }
                 ],
-                max_tokens=150
+                max_tokens=180,
             )
-            
+
             description = response.choices[0].message.content.strip()
-            logger.info(f"📋 Vision Analysis: {description[:100]}...")
+            logger.info(f"📋 Vision Analysis (fixed): {description[:100]}...")
             return description
-            
+
         except Exception as e:
             logger.error(f"Vision analysis failed: {e}")
             return None
+
     
     def _create_customer_photo_prompt(self, product_name: str, vision_description: str) -> str:
         """Create prompt for GPT-Image-1 using contextual analysis"""

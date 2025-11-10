@@ -22,10 +22,10 @@ cmds = [
     "pip uninstall -y Pillow",
     "pip install --no-cache-dir Pillow==10.2.0",
     "pip install -r requirements.txt",
-    "playwright install chromium",
-    "playwright install-deps chromium"
+    "playwright install --with-deps chromium",
+    # ✅ Move browsers to a persistent path so Railway keeps them
+    "mkdir -p /ms-playwright && mv /root/.cache/ms-playwright/* /ms-playwright/"
 ]
-
 
 [phases.build]
 cmds = [
@@ -38,10 +38,8 @@ cmd = "bash start.sh"
 
 [variables]
 PYTHONUNBUFFERED = "1"
-PLAYWRIGHT_BROWSERS_PATH = "/root/.cache/ms-playwright"
+PLAYWRIGHT_BROWSERS_PATH = "/ms-playwright"
 PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "0"
-
-
 
 [env]
 LD_LIBRARY_PATH = "/nix/store/*-libjpeg-turbo-*/lib:/nix/store/*-libjpeg-*/lib:$LD_LIBRARY_PATH"

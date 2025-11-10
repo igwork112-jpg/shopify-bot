@@ -1,5 +1,5 @@
 # ============================================================
-# 🐍 Base: Python 3.12 + system libs for Pillow, Playwright, Chromium
+# 🐍 Base: Python 3.12 + Chromium + Pillow dependencies
 # ============================================================
 FROM python:3.12-slim
 
@@ -9,7 +9,7 @@ ENV PYTHONUNBUFFERED=1 \
     DEBIAN_FRONTEND=noninteractive
 
 # ------------------------------------------------------------
-# 🧰 Install system dependencies for Pillow + Playwright + Chromium
+# 🧰 Install system dependencies for Pillow + Chromium + Playwright
 # ------------------------------------------------------------
 RUN apt-get update && apt-get install -y --no-install-recommends \
     chromium \
@@ -33,6 +33,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libwebp7 \
     libopenjp2-7 \
     fonts-dejavu \
+    fonts-liberation \
     fontconfig \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
@@ -43,7 +44,10 @@ COPY requirements.txt .
 RUN pip install --upgrade pip setuptools wheel
 RUN pip install -r requirements.txt
 
-RUN playwright install --with-deps chromium
+# ------------------------------------------------------------
+# ✅ Install only Chromium (skip dependency installation)
+# ------------------------------------------------------------
+RUN playwright install chromium
 
 COPY . .
 

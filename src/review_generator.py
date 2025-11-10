@@ -62,7 +62,7 @@ class ReviewGenerator:
                 return None
             
             # Step 2: Analyze product with GPT-4 Vision (enhanced color detection)
-            vision_description = self._analyze_product_with_vision(product_image_url, product_name)
+            vision_description = self._analyze_product_with_vision(img_base64, product_name)
             if not vision_description:
                 logger.warning("Vision analysis failed, using description fallback")
                 vision_description = product_description[:200] if product_description else f"This is a {product_name}"
@@ -87,46 +87,56 @@ class ReviewGenerator:
         try:
             logger.info("📥 Downloading and preprocessing product image...")
 
-            # Step 1: Download the image
+            # Download
             response = requests.get(image_url, timeout=15)
             if response.status_code != 200:
-                logger.error(f"❌ Failed to download image: HTTP {response.status_code}")
+                logger.error(f"❌ Failed to download: HTTP {response.status_code}")
                 return None
 
-            # Step 2: Load and verify
+            # Load
             img = Image.open(BytesIO(response.content))
-            img.verify()  # quick corruption check
-            img = Image.open(BytesIO(response.content)).convert('RGB')
+            
+            # Handle transparency
+            if img.mode in ('RGBA', 'LA', 'P'):
+                background = Image.new('RGB', img.size, (255, 255, 255))
+                if img.mode == 'P':
+                    img = img.convert('RGBA')
+                if img.mode == 'RGBA':
+                    background.paste(img, (0, 0), img.split()[3])
+                img = background
+            elif img.mode != 'RGB':
+                img = img.convert('RGB')
 
-            # Step 3: Normalize exposure (darken glare, enhance contrast)
+            # Reduce glare and enhance dark tones
             from PIL import ImageEnhance
+            
+            # Reduce brightness to tone down reflections
             brightness = ImageEnhance.Brightness(img)
-            img = brightness.enhance(0.85)  # slightly darken overly bright areas
-
+            img = brightness.enhance(0.75)  # Darken more
+            
+            # Increase contrast to separate true color from reflections
             contrast = ImageEnhance.Contrast(img)
-            img = contrast.enhance(1.25)    # increase contrast to reveal dark tones
+            img = contrast.enhance(1.4)  # Higher contrast
 
-            # Step 4: Optional resizing for Vision optimization
+            # Optimize size
             max_size = (1024, 1024)
             img.thumbnail(max_size, Image.Resampling.LANCZOS)
 
-            # Step 5: Save temporarily for base64 encoding
+            # Save
             temp_path = self.temp_dir / "temp_product_preprocessed.jpg"
-            img.save(temp_path, "JPEG", quality=90)
+            img.save(temp_path, "JPEG", quality=92)
 
-            # Step 6: Convert to base64
+            # Encode
             with open(temp_path, "rb") as f:
-                img_bytes = f.read()
-                img_base64 = base64.b64encode(img_bytes).decode('utf-8')
+                img_base64 = base64.b64encode(f.read()).decode('utf-8')
 
-            # Step 7: Clean up temp file
             temp_path.unlink(missing_ok=True)
 
-            logger.success("✅ Product image downloaded, normalized, and encoded successfully")
+            logger.success("✅ Product image preprocessed and encoded")
             return img_base64
 
         except Exception as e:
-            logger.error(f"⚠️ Error during image download or encoding: {e}")
+            logger.error(f"⚠️ Error: {e}")
             return None
 
     def _analyze_product_with_vision(self, image_url: str, product_name: str) -> Optional[str]:

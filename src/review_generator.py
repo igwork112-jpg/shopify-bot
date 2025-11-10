@@ -46,6 +46,42 @@ class ReviewGenerator:
         
         return review_data
     
+    def generate_review_image_with_vision(self, product_name: str, 
+                                         product_image_url: str,
+                                         product_description: str = "") -> Optional[Path]:
+        """
+        Complete workflow: Download → GPT-4 Vision Analysis → GPT-Image-1 Generation
+        """
+        try:
+            logger.info("🎨 Starting AI review image generation workflow...")
+            
+            # Step 1: Download and encode product image
+            img_base64 = self._download_and_encode_image(product_image_url)
+            if not img_base64:
+                logger.error("Failed to download product image")
+                return None
+            
+            # Step 2: Analyze product with GPT-4 Vision
+            vision_description = self._analyze_product_with_vision(img_base64, product_name)
+            if not vision_description:
+                logger.warning("Vision analysis failed, using description fallback")
+                vision_description = product_description[:200] if product_description else f"This is a {product_name}"
+            
+            # Step 3: Create customer photo prompt
+            customer_photo_prompt = self._create_customer_photo_prompt(product_name, vision_description)
+            
+            # Step 4: Generate customer photo with GPT-Image-1
+            image_path = self._generate_with_gpt_image_1(customer_photo_prompt, product_name)
+            
+            if image_path:
+                logger.success(f"✅ Review image generated: {image_path.name}")
+            
+            return image_path
+            
+        except Exception as e:
+            logger.error(f"Error in image generation workflow: {e}")
+            return None
+    
     def _download_and_encode_image(self, image_url: str) -> Optional[str]:
         """Download product image, normalize exposure, and convert to base64 for GPT-4 Vision"""
         try:

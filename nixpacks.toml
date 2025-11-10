@@ -29,6 +29,7 @@ cmds = [
 
 [phases.build]
 cmds = [
+  "playwright install chromium --with-deps",
   "mkdir -p logs temp",
   "chmod 755 logs temp"
 ]

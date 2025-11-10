@@ -61,7 +61,7 @@ class ReviewGenerator:
                 logger.error("Failed to download product image")
                 return None
             
-            # Step 2: Analyze product with GPT-4 Vision
+            # Step 2: Analyze product with GPT-4 Vision (enhanced color detection)
             vision_description = self._analyze_product_with_vision(product_image_url, product_name)
             if not vision_description:
                 logger.warning("Vision analysis failed, using description fallback")
@@ -129,64 +129,107 @@ class ReviewGenerator:
             logger.error(f"⚠️ Error during image download or encoding: {e}")
             return None
 
-    
-        
-    # 
-    def _analyze_product_with_vision(self, img_base64: str, product_name: str) -> Optional[str]:
-        """Analyze product image using GPT-4o Vision (color-accurate version)"""
+    def _analyze_product_with_vision(self, image_url: str, product_name: str) -> Optional[str]:
+        """Analyze product image using GPT-4o Vision with enhanced color detection"""
         try:
-            logger.info("👁️ Analyzing product with GPT-4 Vision (color-verified)...")
+            logger.info("👁️ Analyzing product with GPT-4 Vision (enhanced color detection)...")
 
-            prompt = f"""
-    You are analyzing a real photo of a product called "{product_name}".
-
-    Your task is to describe the **true base color** and **material** of the product only.
-    Follow these strict rules:
-
-    1. Ignore any reflections, lighting glare, shadows, or bright spots — they do NOT indicate actual color.
-    2. Focus on the areas in shadow or midtone to find the **true surface color**.
-    3. If the surface looks matte, textured, or rubber-like, it is almost certainly **black or very dark**, NOT grey or white.
-    4. Never call the product "white" or "light grey" unless even the shaded areas are truly white.
-    5. Prefer “black” over “grey” when uncertain for materials like rubber, plastic, metal, or flooring.
-    6. Be concise: describe only the product, not the background.
-
-    Return 2–3 short sentences:
-    - The exact color and tone (e.g., “deep matte black rubber,” “dark charcoal metal”)
-    - Material and texture
-    - Likely use or installation context
+            # Two-pass analysis for better accuracy
+            # Pass 1: Identify material and ignore reflections
+            material_prompt = f"""
+    You are a material science expert analyzing a product image for "{product_name}".
+    
+    CRITICAL INSTRUCTIONS FOR COLOR DETECTION:
+    1. Look at the DARKEST areas of the product (shadows, edges, corners) - these show true color
+    2. COMPLETELY IGNORE any bright spots, white reflections, or glare
+    3. If you see ANY dark areas on the product, it's likely BLACK or DARK colored
+    4. White products are UNIFORMLY bright even in shadows - if shadows are dark, it's NOT white
+    
+    Common mistakes to AVOID:
+    - Don't confuse light reflection with white color
+    - Don't let bright studio lighting fool you
+    - Black rubber/plastic often has white reflections but is still BLACK
+    
+    For this product, determine:
+    1. Material type (rubber, plastic, metal, fabric, wood, etc.)
+    2. Surface finish (matte, glossy, textured, smooth)
+    3. TRUE base color by looking at shadowed areas
+    
+    Answer in this format:
+    MATERIAL: [type]
+    FINISH: [finish type]
+    COLOR: [actual color, not reflections]
     """
 
-            response = self.client.chat.completions.create(
+            material_response = self.client.chat.completions.create(
                 model="gpt-4o",
                 messages=[
                     {
                         "role": "user",
                         "content": [
-                            {"type": "text", "text": prompt},
-                            {
-                                "type": "image_url",
-                                "image_url": {"url": f"data:image/jpeg;base64,{img_base64}"}
-                            },
+                            {"type": "text", "text": material_prompt},
+                            {"type": "image_url", "image_url": {"url": image_url}}
                         ],
                     }
                 ],
-                max_tokens=180,
-                temperature=0.2
+                max_tokens=100,
+                temperature=0.2  # Lower temperature for more consistent analysis
             )
 
-            description = response.choices[0].message.content.strip()
+            material_analysis = material_response.choices[0].message.content.strip()
+            logger.debug(f"Material analysis: {material_analysis}")
 
-            # Small normalization: replace "dark grey" → "black" if matte/rubber is detected
-            if any(word in description.lower() for word in ["matte", "rubber", "non-reflective"]) and "grey" in description.lower():
-                description = description.replace("grey", "black").replace("gray", "black")
+            # Parse material analysis
+            material = ""
+            finish = ""
+            color = ""
+            for line in material_analysis.split('\n'):
+                if 'MATERIAL:' in line:
+                    material = line.split('MATERIAL:')[1].strip()
+                elif 'FINISH:' in line:
+                    finish = line.split('FINISH:')[1].strip()
+                elif 'COLOR:' in line:
+                    color = line.split('COLOR:')[1].strip()
 
-            logger.info(f"📋 Vision Analysis (color-fixed): {description[:100]}...")
+            # Pass 2: Generate description with confirmed color
+            description_prompt = f"""
+    Based on careful analysis, this "{product_name}" is made of {material} with a {finish} finish.
+    The ACTUAL COLOR is {color} (ignoring any light reflections).
+    
+    Write a 2-3 sentence description that:
+    1. States the TRUE color ({color}) and material ({material})
+    2. Describes the texture and appearance
+    3. Mentions its typical use or installation
+    
+    Be specific and accurate about the color - it is {color}, not what reflections might suggest.
+    """
+
+            description_response = self.client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": description_prompt},
+                            {"type": "image_url", "image_url": {"url": image_url}}
+                        ],
+                    }
+                ],
+                max_tokens=150,
+            )
+
+            description = description_response.choices[0].message.content.strip()
+            
+            # Ensure color is prominently mentioned
+            if color.lower() not in description.lower():
+                description = f"This {color} {material} {product_name} has a {finish} finish. {description}"
+            
+            logger.info(f"📋 Vision Analysis (enhanced): {description[:100]}...")
             return description
 
         except Exception as e:
             logger.error(f"Vision analysis failed: {e}")
             return None
-
     
     def _create_customer_photo_prompt(self, product_name: str, vision_description: str) -> str:
         """Create prompt for GPT-Image-1 using contextual analysis"""
@@ -241,12 +284,13 @@ class ReviewGenerator:
             elif "commercial" in context.get('environment', '').lower() or "industrial" in context.get('environment', '').lower():
                 lighting = "standard facility lighting"
             
-            # Step 4: Build the final prompt
+            # Step 4: Build the final prompt with color emphasis
             prompt = (
                 f"A realistic customer photo showing {product_name} installed in {context.get('environment', 'its typical setting')}. "
                 f"{vision_description} The product is shown on/at {context.get('surface', 'its installation surface')}, "
                 f"photographed {context.get('angle', 'from a natural angle')}. "
                 f"The photo clearly shows {context.get('focus', 'the installed product')}. "
+                f"IMPORTANT: The product color described in the vision description must be accurate - no color changes. "
                 f"Taken with a smartphone camera. {lighting}. "
                 f"Natural composition with minor imperfections typical of customer photos. "
                 f"This must look like a real customer took this photo with their phone - NOT a professional product shot, NOT a marketing photo. "
@@ -262,10 +306,12 @@ class ReviewGenerator:
             # Fallback to simple prompt if analysis fails
             return (
                 f"A realistic customer photo showing {product_name}. {vision_description} "
+                f"IMPORTANT: Maintain the exact color described - no color changes. "
                 f"Taken with a smartphone camera. Natural lighting. "
                 f"This must look like a real customer took this photo with their phone - "
                 f"NOT a professional product shot. Photorealistic customer review photo style."
             )
+    
     def _generate_with_gpt_image_1(self, prompt: str, product_name: str) -> Optional[Path]:
         """Generate customer review photo using GPT-Image-1"""
         try:

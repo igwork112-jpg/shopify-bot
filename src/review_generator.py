@@ -139,7 +139,7 @@ Describe in 2-3 sentences:
 2. The material type and thickness
 3. How it's designed to be installed or used
 
-Be very precise about color. If you see highlights or reflections, ignore those and focus on the base material color."""
+Be very precise about color. If you see highlights or reflections or sunlights or anything , ignore those and focus on the base product material color."""
                             },
                             {
                                 "type": "image_url",

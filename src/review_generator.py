@@ -162,34 +162,83 @@ Be very precise about color. If you see highlights or reflections, ignore those 
             return None
     
     def _create_customer_photo_prompt(self, product_name: str, vision_description: str) -> str:
-        """Create prompt for GPT-Image-1 to generate realistic customer photo"""
+        """Create prompt for GPT-Image-1 using contextual analysis"""
         
-        # prompt_templates = [
-        #     f"A realistic customer photo showing {product_name} installed in a home. "
-        #     f"{vision_description} "
-        #     f"Photo taken with a smartphone camera at a casual angle. Natural indoor lighting from a window. "
-        #     f"The installation looks fresh and new. Residential setting with visible floor or stairs. "
-        #     f"Slightly imperfect framing like a real customer would take. Photorealistic, authentic customer review aesthetic.",
+        try:
+            logger.info("🧠 Creating dynamic context-aware prompt...")
             
-        #     f"Authentic homeowner photo of newly installed {product_name}. "
-        #     f"{vision_description} "
-        #     f"Taken with a phone camera from above or at an angle. Natural home lighting, not professional. "
-        #     f"Product clearly visible in its installed position. Background shows typical residential interior. "
-        #     f"Real customer installation photo style, not a professional product shot.",
+            # Step 1: Analyze product context with GPT-4
+            analysis_prompt = (
+                f"You are analyzing a product to help generate a realistic customer review photo.\n\n"
+                f"Product Name: {product_name}\n"
+                f"Product Description: {vision_description}\n\n"
+                f"Analyze this product and provide:\n"
+                f"1. Environment: Where is this product typically installed/used?\n"
+                f"2. Installation Surface: What is it installed on?\n"
+                f"3. Viewing Angle: Best angle for a customer photo?\n"
+                f"4. Key Visual: What should be clearly visible?\n\n"
+                f"Respond in this EXACT format (be brief):\n"
+                f"ENVIRONMENT: [indoor home/outdoor/commercial/industrial/etc]\n"
+                f"SURFACE: [stairs/floor/wall/door/ground/etc]\n"
+                f"ANGLE: [from above/side angle/close-up/etc]\n"
+                f"FOCUS: [what to show clearly]"
+            )
             
-        #     f"Real customer review photo: {product_name} just installed. "
-        #     f"{vision_description} "
-        #     f"Smartphone camera quality with natural lighting. Casual angle showing the product in actual use. "
-        #     f"Home environment visible in background. Photorealistic but with the imperfect composition of a genuine customer photo. "
-        #     f"Slight grain or natural lighting variations."
-        # ]
-        
-        prompt = f"A realistic customer photo showing {product_name} generate a image that should match the product use case if there is a floor mat that should be shown in home not on some other place if product is for commercial use case that should be at commercial place by getting vision description you will know what is the use case of the product dont use different color as always use the color which is shown in the image  make no mistakes be tight. {vision_description} "
-        final_prompt = f"{prompt} This must look like a real person took this photo with their phone to share in a product review - not a professional or marketing photo."
-        
-        logger.debug(f"🎨 Prompt: {final_prompt[:150]}...")
-        return final_prompt
-    
+            response = self.client.chat.completions.create(
+                model="gpt-4o",
+                messages=[{"role": "user", "content": analysis_prompt}],
+                max_tokens=150,
+                temperature=0.3
+            )
+            
+            analysis = response.choices[0].message.content.strip()
+            logger.debug(f"📊 Context analysis: {analysis}")
+            
+            # Step 2: Parse the analysis
+            lines = analysis.split("\n")
+            context = {}
+            for line in lines:
+                if line.startswith("ENVIRONMENT:"):
+                    context['environment'] = line.split("ENVIRONMENT:")[1].strip()
+                elif line.startswith("SURFACE:"):
+                    context['surface'] = line.split("SURFACE:")[1].strip()
+                elif line.startswith("ANGLE:"):
+                    context['angle'] = line.split("ANGLE:")[1].strip()
+                elif line.startswith("FOCUS:"):
+                    context['focus'] = line.split("FOCUS:")[1].strip()
+            
+            # Step 3: Determine appropriate lighting
+            lighting = "natural window lighting"
+            if "outdoor" in context.get('environment', '').lower():
+                lighting = "natural daylight, clear weather"
+            elif "commercial" in context.get('environment', '').lower() or "industrial" in context.get('environment', '').lower():
+                lighting = "standard facility lighting"
+            
+            # Step 4: Build the final prompt
+            prompt = (
+                f"A realistic customer photo showing {product_name} installed in {context.get('environment', 'its typical setting')}. "
+                f"{vision_description} The product is shown on/at {context.get('surface', 'its installation surface')}, "
+                f"photographed {context.get('angle', 'from a natural angle')}. "
+                f"The photo clearly shows {context.get('focus', 'the installed product')}. "
+                f"Taken with a smartphone camera. {lighting}. "
+                f"Natural composition with minor imperfections typical of customer photos. "
+                f"This must look like a real customer took this photo with their phone - NOT a professional product shot, NOT a marketing photo. "
+                f"The setting must match where this product is actually used in real life. Photorealistic customer review photo style."
+            )
+            
+            logger.info(f"✅ Dynamic prompt created: {prompt[:100]}...")
+            return prompt
+            
+        except Exception as e:
+            logger.error(f"Context analysis failed, using simple prompt: {e}")
+            
+            # Fallback to simple prompt if analysis fails
+            return (
+                f"A realistic customer photo showing {product_name}. {vision_description} "
+                f"Taken with a smartphone camera. Natural lighting. "
+                f"This must look like a real customer took this photo with their phone - "
+                f"NOT a professional product shot. Photorealistic customer review photo style."
+            )
     def _generate_with_gpt_image_1(self, prompt: str, product_name: str) -> Optional[Path]:
         """Generate customer review photo using GPT-Image-1"""
         try:

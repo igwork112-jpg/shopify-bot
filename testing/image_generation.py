@@ -17,8 +17,8 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 
 # === Test product sample ===
 TEST_PRODUCT = {
-    "name":"Commercial Grade Shock Absorbing Rubber Interlocking Gym Mats",
-    "image_url": "https://rubberco.co.uk/cdn/shop/products/classico-rubber-interlocking-gym-mats40342_540x.jpg",
+    "name":"Commercial Rubber Sheet Linear Metre Durable Heavy Duty Rubber for Sealing, Insulation & Protection Temperature & Chemical Resistan",
+    "image_url": "https://rubberco.co.uk/cdn/shop/files/AF5E642A-F1A5-4AA9-A1AA-10BA2163B07A_720x.png?v=1760307434",
 }
 
 # === Initialize client ===

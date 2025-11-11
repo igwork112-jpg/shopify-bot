@@ -119,7 +119,7 @@ class ProductScraper:
                 'image_url': self._extract_image(),
                 'price': self._extract_price()
             }
-            
+            logger.info(f"📝 Scraped Description: '{product_data['description'][:500] if product_data['description'] else 'EMPTY'}'")
             # Validate we got at least a name
             if not product_data['name'] or product_data['name'] == "Unknown Product":
                 logger.warning(f"Could not extract product name from {product_url}")

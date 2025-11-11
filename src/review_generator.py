@@ -161,7 +161,7 @@ class ReviewGenerator:
                                      vision_description: str) -> str:
         """Create prompt for GPT-Image-1 to generate realistic customer photo"""
         
-        prompt = f"A realistic customer photo showing {product_name} generate a image that should match the product use case if there is a floor mat that should be shown in home not on some other place if product is for commercial use case that should be at commercial place by getting vision description you will know what is the use case of the product make no mistakes be tight. {vision_description} This must look like a real person took this photo with their phone to share in a product review - not a professional or marketing photo."
+        prompt = f"A realistic customer photo showing {product_name} generate a image that should match the product use case if there is a floor mat that should be shown in home not on some other place and the floor texture and walls should be unique, if product is for commercial use case that should be at commercial place  by getting vision description you will know what is the use case of the product make no mistakes be tight. {vision_description} This must look like a real person took this photo with their phone to share in a product review - not a professional or marketing photo and each image background should varie."
         
         logger.debug(f"🎨 Prompt: {prompt[:150]}...")
         return prompt

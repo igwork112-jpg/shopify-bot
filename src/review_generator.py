@@ -157,15 +157,81 @@ class ReviewGenerator:
             logger.error(f"Vision analysis failed: {e}")
             return None
     
+    # def _create_customer_photo_prompt(self, product_name: str, 
+    #                                  vision_description: str) -> str:
+    #     """Create prompt for GPT-Image-1 to generate realistic customer photo"""
+        
+    #     prompt = f"A realistic customer photo showing {product_name} generate a image that should match the product use case if there is a floor mat that should be shown in home not on some other place and the floor texture and walls should be unique, if product is for commercial use case that should be at commercial place  by getting vision description you will know what is the use case of the product make no mistakes be tight. {vision_description} This must look like a real person took this photo with their phone to share in a product review - not a professional or marketing photo and each image background should varie."
+        
+    #     logger.debug(f"🎨 Prompt: {prompt[:150]}...")
+    #     return prompt
     def _create_customer_photo_prompt(self, product_name: str, 
-                                     vision_description: str) -> str:
+                                 vision_description: str) -> str:
         """Create prompt for GPT-Image-1 to generate realistic customer photo"""
         
-        prompt = f"A realistic customer photo showing {product_name} generate a image that should match the product use case if there is a floor mat that should be shown in home not on some other place and the floor texture and walls should be unique, if product is for commercial use case that should be at commercial place  by getting vision description you will know what is the use case of the product make no mistakes be tight. {vision_description} This must look like a real person took this photo with their phone to share in a product review - not a professional or marketing photo and each image background should varie."
+        # Add variety elements
+        floor_textures = [
+            "ceramic tile floor",
+            "concrete floor", 
+            "wooden floor",
+            "vinyl flooring",
+            "polished concrete",
+            "industrial epoxy floor",
+            "laminate flooring",
+            "textured concrete"
+        ]
+        
+        wall_styles = [
+            "painted white walls",
+            "brick walls",
+            "concrete walls",
+            "painted grey walls",
+            "industrial metal walls",
+            "drywall with neutral color",
+            "painted beige walls",
+            "textured plaster walls"
+        ]
+        
+        lighting_conditions = [
+            "natural daylight from windows",
+            "overhead fluorescent lighting",
+            "warm indoor lighting",
+            "bright LED lighting",
+            "mixed natural and artificial light",
+            "soft ambient lighting"
+        ]
+        
+        camera_styles = [
+            "slightly off-center angle",
+            "taken from standing height",
+            "taken from above at 45 degrees",
+            "close-up showing texture",
+            "wide angle showing surroundings",
+            "casual snapshot angle"
+        ]
+        
+        # Randomly select variety elements
+        chosen_floor = random.choice(floor_textures)
+        chosen_wall = random.choice(wall_styles)
+        chosen_lighting = random.choice(lighting_conditions)
+        chosen_angle = random.choice(camera_styles)
+        
+        prompt = (
+            f"A realistic customer photo showing {product_name}. "
+            f"Generate an image that matches the product use case: if it's a floor mat or home product, "
+            f"show it in a HOME setting (NOT commercial); if it's for commercial/industrial use, "
+            f"show it in a COMMERCIAL or INDUSTRIAL setting. "
+            f"Setting details: {chosen_floor}, {chosen_wall}, {chosen_lighting}. "
+            f"Photo style: {chosen_angle}, slightly blurry like phone camera. "
+            f"Product description for context: {vision_description}. "
+            f"IMPORTANT: Each image background must be UNIQUE and VARIED - different floor textures, "
+            f"wall colors, lighting, and angles every time. "
+            f"This must look like a real person took this photo with their phone to share in a product review - "
+            f"not a professional or marketing photo. Authentic, casual, unpolished."
+        )
         
         logger.debug(f"🎨 Prompt: {prompt[:150]}...")
         return prompt
-    
     def _generate_with_gpt_image_1(self, prompt: str, product_name: str) -> Optional[Path]:
         """Generate customer review photo using GPT-Image-1"""
         try:

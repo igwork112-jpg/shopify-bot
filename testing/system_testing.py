@@ -13,7 +13,22 @@ SCREENSHOTS_DIR = Path("test_screenshots")
 SCREENSHOTS_DIR.mkdir(exist_ok=True)
 
 STORES = [
-    "https://www.pondlinersco.co.uk",
+
+'https://rubberco.co.uk/',
+'https://slip-not.co.uk/',
+'https://expressmatting.co.uk/',
+'https://stairnosingsuk.co.uk/',
+'https://pvcstripcurtainsuk.uk/',
+'https://industrialsuppliesco.co.uk/',
+ 'https://industrialproducts-uk.co.uk/',
+'https://www.floorsafetyuk.co.uk/,'
+
+'https://tarpaulinscompany.co.uk/',
+'https://tarpaulinsuk.uk/',
+'https://barriersco.co.uk/',
+'https://www.pondlinersco.co.uk/',
+'https://rubberfloorings.co.uk/',
+'https://rubbermatting-direct.co.uk/',
 ]
 
 # Will store working selectors for each step

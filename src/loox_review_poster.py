@@ -943,7 +943,8 @@ class LooxReviewPoster:
                 "button[data-lx-fill]",
                 "svg.lx-animation-stroke-star-color",
                 "svg[xmlns='http://www.w3.org/2000/svg']",
-                "div[class*='loox'] svg"
+                "div[class*='loox'] svg",
+                "input[type='radio'][aria-label*='star']"
             ]
             
             stars = None

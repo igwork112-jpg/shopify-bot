@@ -1,0 +1,2209 @@
+{
+  "url": "https://loox.io/widget/NxbTonMwPU/reviews/14837706490204?h=1760341315487&limit=20",
+  "title": "reviews widget",
+  "readyState": "complete",
+  "bodyHTML": "<svg xmlns=\"http://www.w3.org/2000/svg\" style=\"display: none\" id=\"loox-rating-icon-svg-store\">\n\t<defs></defs>\n\t<symbol id=\"looxicons-rating-icon-fill\" viewBox=\"0 0 24 24\" fill=\"currentcolor\">\n\t\t<path fill-rule=\"evenodd\" d=\"M2 0a2 2 0 0 0-2 2v20a2 2 0 0 0 2 2h20a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2Zm4.152 20.5L12 17.226l5.848 3.274-1.306-6.574 4.921-4.55-6.655-.79L12 2.5 9.192 8.586l-6.656.79 4.922 4.55L6.152 20.5Z\" clip-rule=\"evenodd\"></path>\n\t</symbol>\n\t<symbol id=\"looxicons-rating-icon-line\" viewBox=\"0 0 24 24\" fill=\"currentcolor\">\n\t\t<path fill-rule=\"evenodd\" d=\"M2 0a2 2 0 0 0-2 2v20a2 2 0 0 0 2 2h20a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2Zm4.152 20.5L12 17.226l5.848 3.274-1.306-6.574 4.921-4.55-6.655-.79L12 2.5 9.192 8.586l-6.656.79 4.922 4.55L6.152 20.5Z\" clip-rule=\"evenodd\" opacity=\".35\"></path>\n\t</symbol>\n\t<defs>\n\t\t<style>\n\t\t\t.lx-icon-fill {\n\t\t\t\t--lx-fill-width: calc(100% - var(--lx-rating-percent, 0%));\n\t\t\t\tclip-path: inset(0 var(--lx-fill-width, 0) 0 0);\n\t\t\t}\n\t\t\t.lx-icon-line {\n\t\t\t\tclip-pat",
+  "buttons": [
+    {
+      "index": 0,
+      "tagName": "BUTTON",
+      "id": null,
+      "className": "summary-content b",
+      "textContent": "19 Reviews",
+      "innerHTML": "<span data-testid=\"rating-summary-avg\" style=\"margin-right: 10px; display:inline-flex; align-items: center;\" aria-label=\"4.9\" class=\"stars\"><ul style=\"display: inline-flex; margin: unset; padding: uns",
+      "attributes": {
+        "data-panel": "dist",
+        "class": "summary-content b"
+      },
+      "position": {
+        "top": 27.5,
+        "left": 7,
+        "width": 243.4375,
+        "height": 25,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "flex",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": true,
+      "isConnected": true,
+      "hasClickHandler": false
+    },
+    {
+      "index": 1,
+      "tagName": "TR",
+      "id": null,
+      "className": "rating-dist-row",
+      "textContent": "(18)",
+      "innerHTML": "<td style=\"padding-left: 4px\"><div><ul style=\"display: inline-flex; margin: unset; padding: unset; text-indent: unset; list-style-type: none; gap: 2px;\"><li><svg viewBox=\"0 0 24 24\" data-lx-fill=\"full",
+      "attributes": {
+        "data-rating": "5",
+        "data-testid": "rating-filter-button-stars_5",
+        "class": "rating-dist-row",
+        "onclick": "onRatingClick(5)",
+        "tabindex": "0",
+        "role": "button",
+        "aria-label": "Filter by 5 stars",
+        "onkeydown": "onRatingRowKeyDown(event, 5)"
+      },
+      "position": {
+        "top": 0,
+        "left": 0,
+        "width": 0,
+        "height": 0,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "table-row",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": false,
+      "isConnected": true,
+      "hasClickHandler": true
+    },
+    {
+      "index": 2,
+      "tagName": "TR",
+      "id": null,
+      "className": "rating-dist-row",
+      "textContent": "(1)",
+      "innerHTML": "<td style=\"padding-left: 4px\"><div><ul style=\"display: inline-flex; margin: unset; padding: unset; text-indent: unset; list-style-type: none; gap: 2px;\"><li><svg viewBox=\"0 0 24 24\" data-lx-fill=\"full",
+      "attributes": {
+        "data-rating": "4",
+        "data-testid": "rating-filter-button-stars_4",
+        "class": "rating-dist-row",
+        "onclick": "onRatingClick(4)",
+        "tabindex": "0",
+        "role": "button",
+        "aria-label": "Filter by 4 stars",
+        "onkeydown": "onRatingRowKeyDown(event, 4)"
+      },
+      "position": {
+        "top": 0,
+        "left": 0,
+        "width": 0,
+        "height": 0,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "table-row",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": false,
+      "isConnected": true,
+      "hasClickHandler": true
+    },
+    {
+      "index": 3,
+      "tagName": "BUTTON",
+      "id": "write",
+      "className": "btn lx-btn lx-primary header-btn",
+      "textContent": "Write a review",
+      "innerHTML": "Write a review",
+      "attributes": {
+        "id": "write",
+        "data-testid": "write-review-button",
+        "class": "btn lx-btn lx-primary header-btn"
+      },
+      "position": {
+        "top": 20,
+        "left": 890.53125,
+        "width": 138.46875,
+        "height": 40,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "block",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": true,
+      "isConnected": true,
+      "hasClickHandler": false
+    },
+    {
+      "index": 4,
+      "tagName": "BUTTON",
+      "id": "menu-btn",
+      "className": "menu-icon header-btn",
+      "textContent": "",
+      "innerHTML": "<span data-panel=\"dropdown\" id=\"menu-icon-svg\" role=\"img\" aria-label=\"Sort reviews by menu\"><svg data-panel=\"dropdown\" id=\"menu-icon-svg\" width=\"20\" height=\"21\" xmlns=\"http://www.w3.org/2000/svg\" fill",
+      "attributes": {
+        "id": "menu-btn",
+        "data-panel": "dropdown",
+        "aria-label": "Sort reviews by menu",
+        "data-testid": "sorting-menu-dropdown-button",
+        "class": "menu-icon header-btn"
+      },
+      "position": {
+        "top": 20,
+        "left": 1036,
+        "width": 37,
+        "height": 40,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "inline-block",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": true,
+      "isConnected": true,
+      "hasClickHandler": false
+    },
+    {
+      "index": 5,
+      "tagName": "BUTTON",
+      "id": null,
+      "className": null,
+      "textContent": "Featured",
+      "innerHTML": "<div class=\"sorting-option\">Featured</div><span class=\"chosen-option\"><svg width=\"17\" height=\"13\" viewBox=\"0 0 17 13\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M6.364 9.28895L15.556 0.09",
+      "attributes": {
+        "data-sort": "featured",
+        "aria-label": "Sort by Featured",
+        "data-testid": "sorting-menu-button-featured"
+      },
+      "position": {
+        "top": 0,
+        "left": 0,
+        "width": 0,
+        "height": 0,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "flex",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": false,
+      "isConnected": true,
+      "hasClickHandler": false
+    },
+    {
+      "index": 6,
+      "tagName": "BUTTON",
+      "id": null,
+      "className": null,
+      "textContent": "Newest",
+      "innerHTML": "<div class=\"sorting-option\">Newest</div><span><svg width=\"17\" height=\"13\" viewBox=\"0 0 17 13\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M6.364 9.28895L15.556 0.0959473L16.971 1.50995L6.3",
+      "attributes": {
+        "data-sort": "newest",
+        "aria-label": "Sort by Newest",
+        "data-testid": "sorting-menu-button-newest"
+      },
+      "position": {
+        "top": 0,
+        "left": 0,
+        "width": 0,
+        "height": 0,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "flex",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": false,
+      "isConnected": true,
+      "hasClickHandler": false
+    },
+    {
+      "index": 7,
+      "tagName": "BUTTON",
+      "id": null,
+      "className": null,
+      "textContent": "Highest Ratings",
+      "innerHTML": "<div class=\"sorting-option\">Highest Ratings</div><span><svg width=\"17\" height=\"13\" viewBox=\"0 0 17 13\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M6.364 9.28895L15.556 0.0959473L16.971 1.",
+      "attributes": {
+        "data-sort": "highest_ratings",
+        "aria-label": "Sort by Highest Ratings",
+        "data-testid": "sorting-menu-button-highest_ratings"
+      },
+      "position": {
+        "top": 0,
+        "left": 0,
+        "width": 0,
+        "height": 0,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "flex",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": false,
+      "isConnected": true,
+      "hasClickHandler": false
+    },
+    {
+      "index": 8,
+      "tagName": "BUTTON",
+      "id": null,
+      "className": null,
+      "textContent": "Lowest Ratings",
+      "innerHTML": "<div class=\"sorting-option\">Lowest Ratings</div><span><svg width=\"17\" height=\"13\" viewBox=\"0 0 17 13\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M6.364 9.28895L15.556 0.0959473L16.971 1.5",
+      "attributes": {
+        "data-sort": "lowest_ratings",
+        "aria-label": "Sort by Lowest Ratings",
+        "data-testid": "sorting-menu-button-lowest_ratings"
+      },
+      "position": {
+        "top": 0,
+        "left": 0,
+        "width": 0,
+        "height": 0,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "flex",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": false,
+      "isConnected": true,
+      "hasClickHandler": false
+    },
+    {
+      "index": 9,
+      "tagName": "DIV",
+      "id": null,
+      "className": "grid-item clearfix",
+      "textContent": "BenjaminThe liner is extremely durable and clearly heavy-duty, but it took two of us to maneuver it ",
+      "innerHTML": "<div class=\"main action\"><div class=\"box\"><div data-testid=\"review-TyYn8vM1L-title\" class=\"block title\">Benjamin</div><div class=\"clearfix\"></div><div aria-label=\"5 / 5 star review\" data-testid=\"revie",
+      "attributes": {
+        "tabindex": "0",
+        "role": "button",
+        "class": "grid-item clearfix"
+      },
+      "position": {
+        "top": 81,
+        "left": 7,
+        "width": 256,
+        "height": 288.84375,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "block",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": true,
+      "isConnected": true,
+      "hasClickHandler": false
+    },
+    {
+      "index": 10,
+      "tagName": "DIV",
+      "id": null,
+      "className": "grid-item clearfix",
+      "textContent": "OliverNo doubt this is a professional-grade pond liner. It’s thick, UV resistant, and should easily ",
+      "innerHTML": "<div class=\"main action\"><div class=\"box\"><div data-testid=\"review-j6w5l7EnR-title\" class=\"block title\">Oliver</div><div class=\"clearfix\"></div><div aria-label=\"5 / 5 star review\" data-testid=\"review-",
+      "attributes": {
+        "tabindex": "0",
+        "role": "button",
+        "class": "grid-item clearfix"
+      },
+      "position": {
+        "top": 81,
+        "left": 277,
+        "width": 256,
+        "height": 326.84375,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "block",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": true,
+      "isConnected": true,
+      "hasClickHandler": false
+    },
+    {
+      "index": 11,
+      "tagName": "DIV",
+      "id": null,
+      "className": "grid-item clearfix",
+      "textContent": "JamesThe liner itself is solid and does what it’s supposed to, but it’s stiff compared to flexible P",
+      "innerHTML": "<div class=\"main action\"><div class=\"box\"><div data-testid=\"review-mqWX-WHTq-title\" class=\"block title\">James</div><div class=\"clearfix\"></div><div aria-label=\"5 / 5 star review\" data-testid=\"review-m",
+      "attributes": {
+        "tabindex": "0",
+        "role": "button",
+        "class": "grid-item clearfix"
+      },
+      "position": {
+        "top": 81,
+        "left": 547,
+        "width": 256,
+        "height": 231.84375,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "block",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": true,
+      "isConnected": true,
+      "hasClickHandler": false
+    },
+    {
+      "index": 12,
+      "tagName": "DIV",
+      "id": null,
+      "className": "grid-item clearfix",
+      "textContent": "WilliamWe’ve gone through two cheaper liners in the past five years, so we finally upgraded to this ",
+      "innerHTML": "<div class=\"main action\"><div class=\"box\"><div data-testid=\"review-5GO9pYNGD-title\" class=\"block title\">William</div><div class=\"clearfix\"></div><div aria-label=\"5 / 5 star review\" data-testid=\"review",
+      "attributes": {
+        "tabindex": "0",
+        "role": "button",
+        "class": "grid-item clearfix"
+      },
+      "position": {
+        "top": 81,
+        "left": 817,
+        "width": 256,
+        "height": 231.84375,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "block",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": true,
+      "isConnected": true,
+      "hasClickHandler": false
+    },
+    {
+      "index": 13,
+      "tagName": "DIV",
+      "id": null,
+      "className": "grid-item clearfix",
+      "textContent": "NoahThe durability is excellent, and I have no doubt about the 25-year guarantee. That said, it’s re",
+      "innerHTML": "<div class=\"main action\"><div class=\"box\"><div data-testid=\"review-3o7w8TNOd-title\" class=\"block title\">Noah</div><div class=\"clearfix\"></div><div aria-label=\"5 / 5 star review\" data-testid=\"review-3o",
+      "attributes": {
+        "tabindex": "0",
+        "role": "button",
+        "class": "grid-item clearfix"
+      },
+      "position": {
+        "top": 326.84375,
+        "left": 547,
+        "width": 256,
+        "height": 231.84375,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "block",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": true,
+      "isConnected": true,
+      "hasClickHandler": false
+    },
+    {
+      "index": 14,
+      "tagName": "DIV",
+      "id": null,
+      "className": "grid-item clearfix",
+      "textContent": "LiamI installed this liner for a large koi pond project, and the difference compared to cheaper line",
+      "innerHTML": "<div class=\"main action\"><div class=\"box\"><div data-testid=\"review-c5nZ-Pn3J-title\" class=\"block title\">Liam</div><div class=\"clearfix\"></div><div aria-label=\"5 / 5 star review\" data-testid=\"review-c5",
+      "attributes": {
+        "tabindex": "0",
+        "role": "button",
+        "class": "grid-item clearfix"
+      },
+      "position": {
+        "top": 326.84375,
+        "left": 817,
+        "width": 256,
+        "height": 269.84375,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "block",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": true,
+      "isConnected": true,
+      "hasClickHandler": false
+    },
+    {
+      "index": 15,
+      "tagName": "DIV",
+      "id": null,
+      "className": "grid-item clearfix",
+      "textContent": "MatthewIf you need a reliable, heavy-duty pond liner, this is the one to get. Would definitely buy a",
+      "innerHTML": "<div class=\"main action\"><div class=\"box\"><div data-testid=\"review-_S4T_-5bT-title\" class=\"block title\">Matthew</div><div class=\"clearfix\"></div><div aria-label=\"5 / 5 star review\" data-testid=\"review",
+      "attributes": {
+        "tabindex": "0",
+        "role": "button",
+        "class": "grid-item clearfix"
+      },
+      "position": {
+        "top": 383.84375,
+        "left": 7,
+        "width": 256,
+        "height": 136.84375,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "block",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": true,
+      "isConnected": true,
+      "hasClickHandler": false
+    },
+    {
+      "index": 16,
+      "tagName": "DIV",
+      "id": null,
+      "className": "grid-item clearfix",
+      "textContent": "AidenWe used this liner for a big commercial pond, and it’s performing exceptionally well. No leaks,",
+      "innerHTML": "<div class=\"main action\"><div class=\"box\"><div data-testid=\"review-lNbfbfrD3-title\" class=\"block title\">Aiden</div><div class=\"clearfix\"></div><div aria-label=\"5 / 5 star review\" data-testid=\"review-l",
+      "attributes": {
+        "tabindex": "0",
+        "role": "button",
+        "class": "grid-item clearfix"
+      },
+      "position": {
+        "top": 421.84375,
+        "left": 277,
+        "width": 256,
+        "height": 155.84375,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "block",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": true,
+      "isConnected": true,
+      "hasClickHandler": false
+    },
+    {
+      "index": 17,
+      "tagName": "DIV",
+      "id": null,
+      "className": "grid-item clearfix",
+      "textContent": "SebastianNo signs of wear or damage even after months of direct sunlight. Really holds up well!",
+      "innerHTML": "<div class=\"main action\"><div class=\"box\"><div data-testid=\"review-U9nL_WNCS-title\" class=\"block title\">Sebastian</div><div class=\"clearfix\"></div><div aria-label=\"5 / 5 star review\" data-testid=\"revi",
+      "attributes": {
+        "tabindex": "0",
+        "role": "button",
+        "class": "grid-item clearfix"
+      },
+      "position": {
+        "top": 534.6875,
+        "left": 7,
+        "width": 256,
+        "height": 136.84375,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "block",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": true,
+      "isConnected": true,
+      "hasClickHandler": false
+    },
+    {
+      "index": 18,
+      "tagName": "DIV",
+      "id": null,
+      "className": "grid-item clearfix",
+      "textContent": "JacksonConsidering the quality and long lifespan, this liner is well worth the investment. Much bett",
+      "innerHTML": "<div class=\"main action\"><div class=\"box\"><div data-testid=\"review-tOloh1xdi-title\" class=\"block title\">Jackson</div><div class=\"clearfix\"></div><div aria-label=\"5 / 5 star review\" data-testid=\"review",
+      "attributes": {
+        "tabindex": "0",
+        "role": "button",
+        "class": "grid-item clearfix"
+      },
+      "position": {
+        "top": 572.6875,
+        "left": 547,
+        "width": 256,
+        "height": 155.84375,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "block",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": true,
+      "isConnected": true,
+      "hasClickHandler": false
+    },
+    {
+      "index": 19,
+      "tagName": "DIV",
+      "id": null,
+      "className": "grid-item clearfix",
+      "textContent": "HenryI’ve used cheap liners before, and they never lasted. This one is built to withstand anything. ",
+      "innerHTML": "<div class=\"main action\"><div class=\"box\"><div data-testid=\"review-8n4gCfygK-title\" class=\"block title\">Henry</div><div class=\"clearfix\"></div><div aria-label=\"5 / 5 star review\" data-testid=\"review-8",
+      "attributes": {
+        "tabindex": "0",
+        "role": "button",
+        "class": "grid-item clearfix"
+      },
+      "position": {
+        "top": 591.6875,
+        "left": 277,
+        "width": 256,
+        "height": 155.84375,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "block",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": true,
+      "isConnected": true,
+      "hasClickHandler": false
+    },
+    {
+      "index": 20,
+      "tagName": "DIV",
+      "id": null,
+      "className": "grid-item clearfix",
+      "textContent": "DanielUsed this for a natural wildlife pond, and it’s been fantastic. No chemicals, safe for plants ",
+      "innerHTML": "<div class=\"main action\"><div class=\"box\"><div data-testid=\"review--ZKNW8BfX-title\" class=\"block title\">Daniel</div><div class=\"clearfix\"></div><div aria-label=\"5 / 5 star review\" data-testid=\"review-",
+      "attributes": {
+        "tabindex": "0",
+        "role": "button",
+        "class": "grid-item clearfix"
+      },
+      "position": {
+        "top": 610.6875,
+        "left": 817,
+        "width": 256,
+        "height": 155.84375,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "block",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": true,
+      "isConnected": true,
+      "hasClickHandler": false
+    },
+    {
+      "index": 21,
+      "tagName": "DIV",
+      "id": null,
+      "className": "grid-item clearfix",
+      "textContent": "MichaelDespite being thick and tough, it was still flexible enough to shape around my pond. Installa",
+      "innerHTML": "<div class=\"main action\"><div class=\"box\"><div data-testid=\"review-Wt5PrF1tx-title\" class=\"block title\">Michael</div><div class=\"clearfix\"></div><div aria-label=\"5 / 5 star review\" data-testid=\"review",
+      "attributes": {
+        "tabindex": "0",
+        "role": "button",
+        "class": "grid-item clearfix"
+      },
+      "position": {
+        "top": 685.53125,
+        "left": 7,
+        "width": 256,
+        "height": 155.84375,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "block",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": true,
+      "isConnected": true,
+      "hasClickHandler": false
+    },
+    {
+      "index": 22,
+      "tagName": "DIV",
+      "id": null,
+      "className": "grid-item clearfix",
+      "textContent": "JacobSurvived a harsh winter without any cracks or leaks. A truly heavy-duty liner!",
+      "innerHTML": "<div class=\"main action\"><div class=\"box\"><div data-testid=\"review-1O3W9LmbX-title\" class=\"block title\">Jacob</div><div class=\"clearfix\"></div><div aria-label=\"5 / 5 star review\" data-testid=\"review-1",
+      "attributes": {
+        "tabindex": "0",
+        "role": "button",
+        "class": "grid-item clearfix"
+      },
+      "position": {
+        "top": 742.53125,
+        "left": 547,
+        "width": 256,
+        "height": 136.84375,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "block",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": true,
+      "isConnected": true,
+      "hasClickHandler": false
+    },
+    {
+      "index": 23,
+      "tagName": "DIV",
+      "id": null,
+      "className": "grid-item clearfix",
+      "textContent": "EthanI was pleasantly surprised by the thickness and quality. Feels very durable, and my koi fish se",
+      "innerHTML": "<div class=\"main action\"><div class=\"box\"><div data-testid=\"review-jhTBOiQbR-title\" class=\"block title\">Ethan</div><div class=\"clearfix\"></div><div aria-label=\"4 / 5 star review\" data-testid=\"review-j",
+      "attributes": {
+        "tabindex": "0",
+        "role": "button",
+        "class": "grid-item clearfix"
+      },
+      "position": {
+        "top": 761.53125,
+        "left": 277,
+        "width": 256,
+        "height": 155.84375,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "block",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": true,
+      "isConnected": true,
+      "hasClickHandler": false
+    },
+    {
+      "index": 24,
+      "tagName": "DIV",
+      "id": null,
+      "className": "grid-item clearfix",
+      "textContent": "AlexanderInstalled this liner three months ago, and it’s holding up perfectly. No leaks, no damage, ",
+      "innerHTML": "<div class=\"main action\"><div class=\"box\"><div data-testid=\"review-hrP3wwCR7-title\" class=\"block title\">Alexander</div><div class=\"clearfix\"></div><div aria-label=\"5 / 5 star review\" data-testid=\"revi",
+      "attributes": {
+        "tabindex": "0",
+        "role": "button",
+        "class": "grid-item clearfix"
+      },
+      "position": {
+        "top": 780.53125,
+        "left": 817,
+        "width": 256,
+        "height": 155.84375,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "block",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": true,
+      "isConnected": true,
+      "hasClickHandler": false
+    },
+    {
+      "index": 25,
+      "tagName": "DIV",
+      "id": null,
+      "className": "grid-item clearfix",
+      "textContent": "LoganThe 25-year guarantee gave me confidence in the product, and after installing it, I can see why",
+      "innerHTML": "<div class=\"main action\"><div class=\"box\"><div data-testid=\"review-94oQdgBNA-title\" class=\"block title\">Logan</div><div class=\"clearfix\"></div><div aria-label=\"5 / 5 star review\" data-testid=\"review-9",
+      "attributes": {
+        "tabindex": "0",
+        "role": "button",
+        "class": "grid-item clearfix"
+      },
+      "position": {
+        "top": 855.375,
+        "left": 7,
+        "width": 256,
+        "height": 155.84375,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "block",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": true,
+      "isConnected": true,
+      "hasClickHandler": false
+    },
+    {
+      "index": 26,
+      "tagName": "DIV",
+      "id": null,
+      "className": "grid-item clearfix",
+      "textContent": "MasonI needed a heavy-duty liner for my 10,000L pond, and this one was ideal. It’s strong, flexible,",
+      "innerHTML": "<div class=\"main action\"><div class=\"box\"><div data-testid=\"review-VaQQT9Ccr-title\" class=\"block title\">Mason</div><div class=\"clearfix\"></div><div aria-label=\"5 / 5 star review\" data-testid=\"review-V",
+      "attributes": {
+        "tabindex": "0",
+        "role": "button",
+        "class": "grid-item clearfix"
+      },
+      "position": {
+        "top": 893.375,
+        "left": 547,
+        "width": 256,
+        "height": 174.84375,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "block",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": true,
+      "isConnected": true,
+      "hasClickHandler": false
+    },
+    {
+      "index": 27,
+      "tagName": "DIV",
+      "id": null,
+      "className": "grid-item clearfix",
+      "textContent": "LucasThis pond liner is thick, tough, and built to last. It was easy to install, and I can tell it w",
+      "innerHTML": "<div class=\"main action\"><div class=\"box\"><div data-testid=\"review-iQp0vIHUX-title\" class=\"block title\">Lucas</div><div class=\"clearfix\"></div><div aria-label=\"5 / 5 star review\" data-testid=\"review-i",
+      "attributes": {
+        "tabindex": "0",
+        "role": "button",
+        "class": "grid-item clearfix"
+      },
+      "position": {
+        "top": 931.375,
+        "left": 277,
+        "width": 256,
+        "height": 155.84375,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "block",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": true,
+      "isConnected": true,
+      "hasClickHandler": false
+    },
+    {
+      "index": 28,
+      "tagName": "BUTTON",
+      "id": "loadMore",
+      "className": "btn lx-btn lx-primary load-more-button load-more-button-size-undefined",
+      "textContent": "Show more reviews",
+      "innerHTML": "Show more reviews",
+      "attributes": {
+        "id": "loadMore",
+        "style": "display:none;",
+        "tabindex": "0",
+        "data-testid": "load-more-button",
+        "class": "btn lx-btn lx-primary load-more-button load-more-button-size-undefined"
+      },
+      "position": {
+        "top": 0,
+        "left": 0,
+        "width": 0,
+        "height": 0,
+        "inViewport": true
+      },
+      "computed": {
+        "display": "none",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto",
+        "zIndex": "auto",
+        "position": "static"
+      },
+      "disabled": false,
+      "ariaDisabled": false,
+      "offsetParent": false,
+      "isConnected": true,
+      "hasClickHandler": false
+    }
+  ],
+  "inputs": [],
+  "svgs": [
+    {
+      "index": 0,
+      "className": "",
+      "viewBox": null,
+      "parent": "BODY",
+      "parentClass": "grid-active",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 1,
+      "className": "",
+      "viewBox": null,
+      "parent": "BODY",
+      "parentClass": "grid-active",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 2,
+      "className": "loox-icon star text-large",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 3,
+      "className": "loox-icon star text-large",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 4,
+      "className": "loox-icon star text-large",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 5,
+      "className": "loox-icon star text-large",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 6,
+      "className": "loox-icon star text-large",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 7,
+      "className": "chevron-open",
+      "viewBox": "0 0 14 8",
+      "parent": "DIV",
+      "parentClass": "header-chevron",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 8,
+      "className": "chevron-closed chevron-hide",
+      "viewBox": "0 0 14 8",
+      "parent": "DIV",
+      "parentClass": "header-chevron",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 9,
+      "className": "loox-icon star loox-star",
+      "viewBox": "0 0 24 24",
+      "parent": "SPAN",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 10,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 11,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 12,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 13,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 14,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 15,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 16,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 17,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 18,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 19,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 20,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 21,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 22,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 23,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 24,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 25,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 26,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 27,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 28,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 29,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 30,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 31,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 32,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 33,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 34,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 35,
+      "className": "",
+      "viewBox": "0 0 20 20",
+      "parent": "SPAN",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 36,
+      "className": "",
+      "viewBox": "0 0 17 13",
+      "parent": "SPAN",
+      "parentClass": "chosen-option",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 37,
+      "className": "",
+      "viewBox": "0 0 17 13",
+      "parent": "SPAN",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 38,
+      "className": "",
+      "viewBox": "0 0 17 13",
+      "parent": "SPAN",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 39,
+      "className": "",
+      "viewBox": "0 0 17 13",
+      "parent": "SPAN",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": false
+    },
+    {
+      "index": 40,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 41,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 42,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 43,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 44,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 45,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 46,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 47,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 48,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 49,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 50,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 51,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 52,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 53,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 54,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 55,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 56,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 57,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 58,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 59,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 60,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 61,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 62,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 63,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 64,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 65,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 66,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 67,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 68,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 69,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 70,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 71,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 72,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 73,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 74,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 75,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 76,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 77,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 78,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 79,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 80,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 81,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 82,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 83,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 84,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 85,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 86,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 87,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 88,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 89,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 90,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 91,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 92,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 93,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 94,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 95,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 96,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 97,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 98,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 99,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 100,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 101,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 102,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 103,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 104,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 105,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 106,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 107,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 108,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 109,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 110,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 111,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 112,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 113,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 114,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 115,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 116,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 117,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 118,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 119,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 120,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 121,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 122,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 123,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 124,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 125,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 126,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 127,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 128,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 129,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 130,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 131,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 132,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 133,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    },
+    {
+      "index": 134,
+      "className": "loox-icon star",
+      "viewBox": "0 0 24 24",
+      "parent": "LI",
+      "parentClass": "",
+      "hasClickHandler": false,
+      "visible": true
+    }
+  ],
+  "allSelectors": {
+    "buttons": 8,
+    "links": 0,
+    "inputs": 0,
+    "textareas": 0,
+    "svgs": 135,
+    "iframes": 0
+  },
+  "viewport": {
+    "width": 1080,
+    "height": 1164,
+    "scrollY": 0
+  }
+}

@@ -220,7 +220,7 @@ class ReviewGenerator:
             f"A realistic customer photo showing {product_name}. "
             f"Generate an image that matches the product use case: if it's a floor mat or home product, "
             f"show it in a HOME setting (NOT commercial); if it's for commercial/industrial use, "
-            f"show it in a COMMERCIAL or INDUSTRIAL setting. "
+            f"show it in a COMMERCIAL or INDUSTRIAL setting also show where its belong if its an office table show it in office setting if its gym mat show in gym as if it is swimming cap show a person wearing that the place should match the product usecase . "
             f"Setting details: {chosen_floor}, {chosen_wall}, {chosen_lighting}. "
             f"Photo style: {chosen_angle}, slightly blurry like phone camera. "
             f"Product description for context: {vision_description}. "

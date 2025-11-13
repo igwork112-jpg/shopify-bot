@@ -24,7 +24,7 @@ class Settings:
         
         # Convert string 'true'/'false' to boolean for HEADLESS
         headless = os.getenv('HEADLESS', 'false').lower()
-        self.HEADLESS = headless in ('truee', '1', 'yes', 'on')
+        self.HEADLESS = headless in ('true', '1', 'yes', 'on')
         
         self.MIN_DELAY = int(os.getenv('MIN_DELAY', '3'))
         self.MAX_DELAY = int(os.getenv('MAX_DELAY', '6'))

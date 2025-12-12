@@ -118,83 +118,7 @@
             content: "✓ ";
         }
 
-        .slider-container {
-            position: relative;
-            padding: 20px 0;
-        }
 
-        .slider {
-            width: 100%;
-            height: 8px;
-            border-radius: 5px;
-            background: linear-gradient(to right, #667eea 0%, #764ba2 100%);
-            outline: none;
-            opacity: 0.7;
-            transition: opacity 0.2s;
-            -webkit-appearance: none;
-            appearance: none;
-        }
-
-        .slider:hover {
-            opacity: 1;
-        }
-
-        .slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            background: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            cursor: pointer;
-            border: 3px solid #667eea;
-        }
-
-        .slider::-moz-range-thumb {
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            background: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            cursor: pointer;
-            border: 3px solid #667eea;
-        }
-
-        .slider-value {
-            position: absolute;
-            top: -35px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #667eea;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-
-        .slider-value::after {
-            content: '';
-            position: absolute;
-            bottom: -6px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 8px solid transparent;
-            border-right: 8px solid transparent;
-            border-top: 8px solid #667eea;
-        }
-
-        .range-labels {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-            color: #718096;
-            font-size: 14px;
-        }
 
         .checkbox-group {
             display: flex;
@@ -453,24 +377,13 @@
             </div>
 
             <div class="form-group">
-                <label>Reviews Per Product</label>
-                <div class="slider-container">
-                    <div class="slider-value" id="sliderValue">3</div>
-                    <input 
-                        type="range" 
-                        class="slider" 
-                        id="reviewCount" 
-                        min="1" 
-                        max="10" 
-                        value="3"
-                        step="1"
-                    >
-                    <div class="range-labels">
-                        <span>1 review</span>
-                        <span>10 reviews</span>
-                    </div>
+                <div class="checkbox-group" style="background: #f0fff4; border: 2px solid #48bb78;">
+                    <span style="font-size: 24px;">🎲</span>
+                    <label>
+                        <strong>Reviews Per Product: 7-15 (Random)</strong><br>
+                        <small>Each product will receive a random number of reviews</small>
+                    </label>
                 </div>
-                <p class="help-text">Number of reviews to post per product</p>
             </div>
 
             <div class="form-group">
@@ -517,15 +430,7 @@
     </div>
 
     <script>
-        // Slider value display
-        const slider = document.getElementById('reviewCount');
-        const sliderValue = document.getElementById('sliderValue');
-        
-        slider.addEventListener('input', function() {
-            sliderValue.textContent = this.value;
-            const percent = (this.value - this.min) / (this.max - this.min);
-            sliderValue.style.left = `calc(${percent * 100}% + ${8 - percent * 16}px)`;
-        });
+
 
         // Update Store URL
         const updateUrlBtn = document.getElementById('updateUrlBtn');
@@ -658,10 +563,9 @@
 
             const storeUrl = document.getElementById('storeUrl').value.trim();
             const apiKey = document.getElementById('apiKey').value.trim();
-            const reviewsPerProduct = parseInt(document.getElementById('reviewCount').value);
             const useAiImages = document.getElementById('useAiImages').checked;
 
-            console.log('Configuration:', { storeUrl, apiKey: '***', reviewsPerProduct, useAiImages });
+            console.log('Configuration:', { storeUrl, apiKey: '***', useAiImages });
 
             if (!storeUrl || !apiKey) {
                 alert('Please set Store URL and API Key first');
@@ -671,7 +575,6 @@
             const config = {
                 storeUrl: storeUrl,
                 apiKey: apiKey,
-                reviewsPerProduct: reviewsPerProduct,
                 useAiImages: useAiImages,
                 headless: true  // Always headless
             };
@@ -691,7 +594,7 @@
             // Add log entry
             addLog('info', 'Starting bot with configuration...');
             addLog('info', `Store: ${config.storeUrl}`);
-            addLog('info', `Reviews per product: ${config.reviewsPerProduct}`);
+            addLog('info', 'Reviews per product: 7-15 (random)');
             addLog('info', `AI Images: ${config.useAiImages ? 'Enabled' : 'Disabled'}`);
             addLog('info', 'Headless: Always enabled (background mode)');
 

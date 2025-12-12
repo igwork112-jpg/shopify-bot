@@ -45,8 +45,8 @@ class ReviewBot:
             logger.info("=" * 70)
             logger.info(f"📍 Store: {self.store_url}")
             add_web_log('info', f'Store: {self.store_url}')
-            logger.info(f"📝 Reviews per product: {settings.REVIEWS_PER_PRODUCT}")
-            add_web_log('info', f'Reviews per product: {settings.REVIEWS_PER_PRODUCT}')
+            logger.info(f"📝 Reviews per product: {settings.MIN_REVIEWS_PER_PRODUCT}-{settings.MAX_REVIEWS_PER_PRODUCT} (random)")
+            add_web_log('info', f'Reviews per product: {settings.MIN_REVIEWS_PER_PRODUCT}-{settings.MAX_REVIEWS_PER_PRODUCT} (random)')
             logger.info(f"📸 AI Images: {'Enabled' if settings.USE_AI_IMAGES else 'Disabled'}")
             add_web_log('info', f"AI Images: {'Enabled' if settings.USE_AI_IMAGES else 'Disabled'}")
             logger.info("=" * 70)
@@ -112,10 +112,17 @@ class ReviewBot:
                                 self.stats['products_processed'] += 1
                                 add_web_log('success', f'Extracted data for: {product_data["name"]}')
                                 
-                                # POST ALL REVIEWS FOR THIS PRODUCT
-                                for review_num in range(1, settings.REVIEWS_PER_PRODUCT + 1):
-                                    logger.info(f"\n📝 REVIEW {review_num}/{settings.REVIEWS_PER_PRODUCT} FOR THIS PRODUCT")
-                                    add_web_log('info', f'Generating review {review_num}/{settings.REVIEWS_PER_PRODUCT} for {product_data["name"]}')
+                                # POST ALL REVIEWS FOR THIS PRODUCT (random count between min-max)
+                                reviews_for_this_product = random.randint(
+                                    settings.MIN_REVIEWS_PER_PRODUCT, 
+                                    settings.MAX_REVIEWS_PER_PRODUCT
+                                )
+                                logger.info(f"📊 Will post {reviews_for_this_product} reviews for this product")
+                                add_web_log('info', f'Will post {reviews_for_this_product} reviews for {product_data["name"]}')
+                                
+                                for review_num in range(1, reviews_for_this_product + 1):
+                                    logger.info(f"\n📝 REVIEW {review_num}/{reviews_for_this_product} FOR THIS PRODUCT")
+                                    add_web_log('info', f'Generating review {review_num}/{reviews_for_this_product} for {product_data["name"]}')
                                     logger.info("-" * 50)
                                     
                                     # Generate review data with GPT-Image-1 workflow
@@ -145,12 +152,12 @@ class ReviewBot:
                                     
                                     if success:
                                         self.stats['reviews_posted'] += 1
-                                        logger.success(f"✅ Review {review_num}/{settings.REVIEWS_PER_PRODUCT} posted!")
-                                        add_web_log('success', f'✅ Posted review {review_num}/{settings.REVIEWS_PER_PRODUCT} for {product_data["name"]}')
+                                        logger.success(f"✅ Review {review_num}/{reviews_for_this_product} posted!")
+                                        add_web_log('success', f'✅ Posted review {review_num}/{reviews_for_this_product} for {product_data["name"]}')
                                     else:
                                         self.stats['reviews_failed'] += 1
-                                        logger.failure(f"❌ Review {review_num}/{settings.REVIEWS_PER_PRODUCT} failed")
-                                        add_web_log('error', f'❌ Failed to post review {review_num}/{settings.REVIEWS_PER_PRODUCT}')
+                                        logger.failure(f"❌ Review {review_num}/{reviews_for_this_product} failed")
+                                        add_web_log('error', f'❌ Failed to post review {review_num}/{reviews_for_this_product}')
                                     
                                     # Cleanup temp image file
                                     if review_data.get('image_path') and review_data['image_path'].exists():
@@ -161,18 +168,18 @@ class ReviewBot:
                                             logger.warning(f"Could not cleanup image: {e}")
                                     
                                     # Delay between reviews on SAME PRODUCT
-                                    if review_num < settings.REVIEWS_PER_PRODUCT:
+                                    if review_num < reviews_for_this_product:
                                         delay = random.uniform(settings.MIN_DELAY, settings.MAX_DELAY)
                                         logger.info(f"⏳ Waiting {delay:.1f}s before next review on this product...")
                                         time.sleep(delay)
                                     
                                     # Go back to product page for next review
-                                    if review_num < settings.REVIEWS_PER_PRODUCT:
+                                    if review_num < reviews_for_this_product:
                                         logger.info("🔄 Returning to product page for next review...")
                                         page.goto(product_url, wait_until="domcontentloaded")
                                         time.sleep(2)
                                 
-                                logger.success(f"✅ Completed all {settings.REVIEWS_PER_PRODUCT} reviews for this product!")
+                                logger.success(f"✅ Completed all {reviews_for_this_product} reviews for this product!")
                                 add_web_log('success', f'Completed all reviews for {product_data["name"]}')
                                 
                                 # Delay between PRODUCTS

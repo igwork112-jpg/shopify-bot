@@ -88,7 +88,8 @@ def update_config():
                 f.write(f"OPENAI_API_KEY={env_content['OPENAI_API_KEY']}\n")
 
             f.write("\n# Bot Settings\n")
-            f.write(f"REVIEWS_PER_PRODUCT={env_content.get('REVIEWS_PER_PRODUCT', '3')}\n")
+            f.write(f"MIN_REVIEWS_PER_PRODUCT={env_content.get('MIN_REVIEWS_PER_PRODUCT', '7')}\n")
+            f.write(f"MAX_REVIEWS_PER_PRODUCT={env_content.get('MAX_REVIEWS_PER_PRODUCT', '15')}\n")
             f.write(f"USE_AI_IMAGES={env_content.get('USE_AI_IMAGES', 'true')}\n")
             f.write(f"HEADLESS={env_content.get('HEADLESS', 'false')}\n")
             f.write(f"MIN_DELAY={env_content.get('MIN_DELAY', '3')}\n")
@@ -142,7 +143,8 @@ STORE_URL={config['storeUrl']}
 OPENAI_API_KEY={config['apiKey']}
 
 # Bot Settings
-REVIEWS_PER_PRODUCT={config['reviewsPerProduct']}
+MIN_REVIEWS_PER_PRODUCT=7
+MAX_REVIEWS_PER_PRODUCT=15
 USE_AI_IMAGES={'true' if config['useAiImages'] else 'false'}
 HEADLESS=true
 MIN_DELAY=3
@@ -248,7 +250,7 @@ def run_bot():
         # Verify we have the right URL
         add_log('info', f'✓ Loaded store URL from .env: {settings.STORE_URL}')
         add_log('info', f'✓ OpenAI API Key: {"*" * 20}{settings.OPENAI_API_KEY[-10:] if len(settings.OPENAI_API_KEY) > 10 else "SET"}')
-        add_log('info', f'✓ Reviews per product: {settings.REVIEWS_PER_PRODUCT}')
+        add_log('info', f'✓ Reviews per product: {settings.MIN_REVIEWS_PER_PRODUCT}-{settings.MAX_REVIEWS_PER_PRODUCT} (random)')
         add_log('info', f'✓ AI Images: {settings.USE_AI_IMAGES}')
         add_log('info', f'✓ Headless mode: {settings.HEADLESS}')
 

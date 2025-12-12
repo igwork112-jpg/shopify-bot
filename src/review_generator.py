@@ -169,45 +169,131 @@ class ReviewGenerator:
                                  vision_description: str) -> str:
         """Create prompt for GPT-Image-1 to generate realistic customer photo"""
         
-        # Add variety elements
+        # EXTENSIVE variety elements for maximum uniqueness
         floor_textures = [
-            "ceramic tile floor",
-            "concrete floor", 
-            "wooden floor",
-            "vinyl flooring",
-            "polished concrete",
-            "industrial epoxy floor",
-            "laminate flooring",
-            "textured concrete"
+            # Tile varieties
+            "ceramic tile floor", "porcelain tile floor", "terracotta tiles", "mosaic tile floor",
+            "slate tile floor", "marble tile floor", "travertine floor", "quarry tiles",
+            # Wood varieties  
+            "oak hardwood floor", "maple hardwood floor", "walnut wood floor", "pine wood floor",
+            "bamboo flooring", "reclaimed wood floor", "parquet flooring", "engineered wood floor",
+            "dark stained wood floor", "light natural wood floor", "distressed wood floor",
+            # Concrete varieties
+            "polished concrete", "raw concrete floor", "stained concrete", "stamped concrete",
+            "industrial epoxy floor", "sealed concrete", "exposed aggregate concrete",
+            # Other
+            "vinyl flooring", "laminate flooring", "linoleum floor", "rubber flooring",
+            "terrazzo floor", "cork flooring", "carpet", "stone flagstone floor",
+            "brick pavers", "pebble floor", "outdoor decking", "patio stones"
         ]
         
         wall_styles = [
-            "painted white walls",
-            "brick walls",
-            "concrete walls",
-            "painted grey walls",
-            "industrial metal walls",
-            "drywall with neutral color",
-            "painted beige walls",
-            "textured plaster walls"
+            # Painted walls
+            "painted white walls", "painted off-white walls", "painted cream walls",
+            "painted grey walls", "painted light grey walls", "painted charcoal walls",
+            "painted beige walls", "painted taupe walls", "painted blue walls",
+            "painted green walls", "painted sage green walls", "painted navy walls",
+            "painted terracotta walls", "painted yellow walls", "painted warm white walls",
+            # Textured walls
+            "textured plaster walls", "venetian plaster walls", "stucco walls",
+            "knockdown texture walls", "orange peel texture walls", "smooth drywall",
+            # Material walls
+            "exposed brick walls", "painted brick walls", "whitewashed brick walls",
+            "concrete walls", "raw concrete walls", "cinder block walls",
+            "wood paneling walls", "shiplap walls", "beadboard walls", "wainscoting walls",
+            "industrial metal walls", "corrugated metal walls", "stone walls",
+            "tile backsplash wall", "wallpapered walls", "accent wall with texture"
         ]
         
         lighting_conditions = [
-            "natural daylight from windows",
-            "overhead fluorescent lighting",
-            "warm indoor lighting",
-            "bright LED lighting",
-            "mixed natural and artificial light",
-            "soft ambient lighting"
+            # Natural light
+            "natural daylight from large windows", "soft morning light from window",
+            "bright afternoon sunlight", "golden hour warm light", "overcast daylight",
+            "north-facing window light", "south-facing bright light", "dappled sunlight",
+            # Artificial light
+            "overhead fluorescent lighting", "warm tungsten lighting", "cool LED lighting",
+            "soft ambient lighting", "bright workshop lighting", "pendant light overhead",
+            "recessed ceiling lights", "track lighting", "under-cabinet lighting",
+            "industrial pendant lights", "string lights", "lamp light from corner",
+            # Mixed
+            "mixed natural and artificial light", "window light with overhead lights on",
+            "dimly lit with accent lights", "well-lit commercial space lighting"
         ]
         
         camera_styles = [
-            "slightly off-center angle",
-            "taken from standing height",
-            "taken from above at 45 degrees",
-            "close-up showing texture",
-            "wide angle showing surroundings",
-            "casual snapshot angle"
+            # EXPLICIT VIEWING ANGLES - Very different perspectives
+            "shot from directly above looking straight down (bird's eye view)",
+            "shot from floor level looking up at the product",
+            "shot at eye level with product on table/shelf",
+            "shot from 45 degree angle above",
+            "shot from low angle making product look larger",
+            "shot from behind showing back of product",
+            "profile shot from the side",
+            "three-quarter front view at standing height",
+            "dramatic low angle from ground",
+            "overhead flat-lay style shot",
+            
+            # DISTANCE VARIATIONS
+            "extreme close-up showing texture and material",
+            "close-up filling 80% of frame",
+            "medium shot with product and surroundings visible",
+            "wide shot showing product in full room context",
+            "pulled back showing product small in frame",
+            
+            # CANDID POSITIONS
+            "product being held in one hand at arm's length",
+            "product being held with both hands",
+            "product resting on knee while sitting",
+            "product placed on floor with feet visible nearby",
+            "product on table with hand reaching toward it",
+            "product next to everyday objects for scale",
+            "product partially in shadow",
+            "product caught mid-installation",
+            
+            # PHONE PHOTO STYLES  
+            "quick snapshot taken while walking past",
+            "selfie-style with product held up",
+            "photo taken through a doorway",
+            "reflected in mirror with product",
+            "slightly tilted as if taken in a hurry",
+            "cropped awkwardly like amateur photo"
+        ]
+        
+        # Product orientation for additional variety
+        product_orientations = [
+            "product shown right-side up in normal position",
+            "product tilted at an angle",
+            "product laying on its side",
+            "product shown from underneath",
+            "product shown installed/in-use",
+            "product shown next to packaging",
+            "product shown with hands interacting with it",
+            "product shown being measured with tape or ruler",
+            "product shown compared to common object for size reference",
+            "multiple angles of same product visible"
+        ]
+        
+        room_types = [
+            "living room", "bedroom", "kitchen", "bathroom", "hallway",
+            "garage", "workshop", "home office", "basement", "attic",
+            "laundry room", "mudroom", "sunroom", "dining room", "den",
+            "commercial warehouse", "industrial facility", "retail store",
+            "restaurant kitchen", "gym", "yoga studio", "medical office",
+            "dental clinic", "veterinary office", "salon", "spa",
+            "hotel lobby", "office building", "school classroom", "library"
+        ]
+        
+        time_of_day = [
+            "morning", "midday", "afternoon", "late afternoon", 
+            "early evening", "dusk", "well-lit daytime"
+        ]
+        
+        photo_imperfections = [
+            "slightly blurry like phone camera", "minor lens flare visible",
+            "slightly overexposed", "slightly underexposed", "soft focus",
+            "phone camera quality", "slight grain in shadows",
+            "quick snapshot quality", "casual phone photo look",
+            "not perfectly framed", "amateur photographer style"
         ]
         
         # Randomly select variety elements
@@ -215,18 +301,28 @@ class ReviewGenerator:
         chosen_wall = random.choice(wall_styles)
         chosen_lighting = random.choice(lighting_conditions)
         chosen_angle = random.choice(camera_styles)
+        chosen_orientation = random.choice(product_orientations)
+        chosen_room = random.choice(room_types)
+        chosen_time = random.choice(time_of_day)
+        chosen_imperfection = random.choice(photo_imperfections)
+        
+        # Random seed for extra uniqueness
+        unique_seed = random.randint(1000, 9999)
         
         prompt = (
             f"A realistic customer photo showing {product_name}. "
+            f"CRITICAL CAMERA ANGLE: {chosen_angle}. "
+            f"PRODUCT ORIENTATION: {chosen_orientation}. "
             f"Generate an image that matches the product use case: if it's a floor mat or home product, "
             f"show it in a HOME setting (NOT commercial); if it's for commercial/industrial use, "
             f"Also keep {vision_description} in mind while generating the image use the {chosen_floor},{chosen_wall} when needed if product is for outdoor use such as tens or pondliners then it should be shown in outdoor setting accordingly "
             f"show it in a COMMERCIAL or INDUSTRIAL setting also show where its belong if its an office table show it in office setting if its gym mat show in gym as if it is swimming cap show a person wearing that,if  the place should match the product usecase . "
+            f"Room type: {chosen_room} during {chosen_time}. "
             f"Setting details: {chosen_floor}, {chosen_wall}, {chosen_lighting}. "
-            f"Photo style: {chosen_angle}, slightly blurry like phone camera. "
+            f"Photo style: {chosen_imperfection}. "
             f"Product description for context: {vision_description}. "
             f"IMPORTANT: Each image background must be UNIQUE and VARIED - different floor textures, "
-            f"wall colors, lighting, and angles every time. "
+            f"wall colors, lighting, and angles every time. Unique variation seed: {unique_seed}. "
             f"This must look like a real person took this photo with their phone to share in a product review - "
             f"not a professional or marketing photo. Authentic, casual, unpolished."
         )

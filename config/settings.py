@@ -15,16 +15,17 @@ class Settings:
         # API Keys
         self.OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
         
-        # Bot Settings
-        self.REVIEWS_PER_PRODUCT = int(os.getenv('REVIEWS_PER_PRODUCT', '3'))
+        # Bot Settings - Random reviews per product (range)
+        self.MIN_REVIEWS_PER_PRODUCT = int(os.getenv('MIN_REVIEWS_PER_PRODUCT', '7'))
+        self.MAX_REVIEWS_PER_PRODUCT = int(os.getenv('MAX_REVIEWS_PER_PRODUCT', '15'))
         
         # Convert string 'true'/'false' to boolean
         use_ai_images = os.getenv('USE_AI_IMAGES', 'true').lower()
         self.USE_AI_IMAGES = use_ai_images in ('true', '1', 'yes', 'on')
         
         # Convert string 'true'/'false' to boolean for HEADLESS
-        headless = os.getenv('HEADLESS', 'false').lower()
-        self.HEADLESS = headless in ('true', '1', 'yes', 'on')
+        headless = os.getenv('HEADLESS', 'true').lower()
+        self.HEADLESS = headless in ('false', '1', 'yes', 'on')
         
         self.MIN_DELAY = int(os.getenv('MIN_DELAY', '3'))
         self.MAX_DELAY = int(os.getenv('MAX_DELAY', '6'))
@@ -49,8 +50,10 @@ class Settings:
         if not self.OPENAI_API_KEY:
             raise ValueError("OPENAI_API_KEY must be set")
         
-        if self.REVIEWS_PER_PRODUCT < 1 or self.REVIEWS_PER_PRODUCT > 10:
-            raise ValueError("REVIEWS_PER_PRODUCT must be between 1 and 10")
+        if self.MIN_REVIEWS_PER_PRODUCT < 1 or self.MAX_REVIEWS_PER_PRODUCT > 20:
+            raise ValueError("Reviews per product must be between 1 and 20")
+        if self.MIN_REVIEWS_PER_PRODUCT > self.MAX_REVIEWS_PER_PRODUCT:
+            raise ValueError("MIN_REVIEWS_PER_PRODUCT cannot be greater than MAX_REVIEWS_PER_PRODUCT")
     
     def reload(self):
         """Reload settings from .env file"""

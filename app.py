@@ -86,6 +86,11 @@ def update_config():
             f.write("\n# API Keys\n")
             if 'OPENAI_API_KEY' in env_content:
                 f.write(f"OPENAI_API_KEY={env_content['OPENAI_API_KEY']}\n")
+            if 'GEMINI_API_KEY' in env_content:
+                f.write(f"GEMINI_API_KEY={env_content['GEMINI_API_KEY']}\n")
+
+            f.write("\n# Image Generation\n")
+            f.write(f"IMAGE_PROVIDER={env_content.get('IMAGE_PROVIDER', 'gemini')}\n")
 
             f.write("\n# Bot Settings\n")
             f.write(f"MIN_REVIEWS_PER_PRODUCT={env_content.get('MIN_REVIEWS_PER_PRODUCT', '7')}\n")
@@ -136,16 +141,25 @@ def start_bot():
 
         # Write new .env file
         env_path = Path('.env')
+        
+        # Determine USE_AI_IMAGES from imageProvider
+        image_provider = config.get('imageProvider', 'gemini')
+        use_ai_images = 'true' if image_provider != 'none' else 'false'
+        
         env_content = f"""# Store Configuration
 STORE_URL={config['storeUrl']}
 
 # API Keys
 OPENAI_API_KEY={config['apiKey']}
+GEMINI_API_KEY={config.get('geminiApiKey', '')}
+
+# Image Generation
+IMAGE_PROVIDER={image_provider}
 
 # Bot Settings
 MIN_REVIEWS_PER_PRODUCT=7
 MAX_REVIEWS_PER_PRODUCT=15
-USE_AI_IMAGES={'true' if config['useAiImages'] else 'false'}
+USE_AI_IMAGES={use_ai_images}
 HEADLESS=true
 MIN_DELAY=3
 MAX_DELAY=6
@@ -221,6 +235,23 @@ def bot_status():
         'logs': logs,
         **bot_state['stats']
     })
+
+
+@app.route('/clear-progress', methods=['POST'])
+def clear_progress():
+    """Clear the progress file to start fresh"""
+    try:
+        progress_file = Path('progress.json')
+        
+        if progress_file.exists():
+            progress_file.unlink()
+            add_log('info', '🗑️ Progress file cleared - ready for fresh start')
+            return jsonify({'success': True, 'message': 'Progress cleared successfully'})
+        else:
+            return jsonify({'success': True, 'message': 'No progress file to clear'})
+    
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 
 # ============================================================

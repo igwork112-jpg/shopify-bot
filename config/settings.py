@@ -14,6 +14,10 @@ class Settings:
         
         # API Keys
         self.OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
+        self.GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
+        
+        # Image Generation Provider: 'gemini', 'openai', or 'none'
+        self.IMAGE_PROVIDER = os.getenv('IMAGE_PROVIDER', 'gemini').lower()
         
         # Bot Settings - Random reviews per product (range)
         self.MIN_REVIEWS_PER_PRODUCT = int(os.getenv('MIN_REVIEWS_PER_PRODUCT', '7'))
@@ -25,7 +29,7 @@ class Settings:
         
         # Convert string 'true'/'false' to boolean for HEADLESS
         headless = os.getenv('HEADLESS', 'true').lower()
-        self.HEADLESS = headless in ('false', '1', 'yes', 'on')
+        self.HEADLESS = headless in ('true', '1', 'yes', 'on')
         
         self.MIN_DELAY = int(os.getenv('MIN_DELAY', '3'))
         self.MAX_DELAY = int(os.getenv('MAX_DELAY', '6'))

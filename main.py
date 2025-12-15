@@ -6,6 +6,7 @@ from src.browser_manager import BrowserManager
 from src.product_scraper import ProductScraper
 from src.review_generator import ReviewGenerator
 from src.loox_review_poster import LooxReviewPoster
+from src.progress_manager import ProgressManager
 
 # Global web logs for Flask interface
 web_logs = []
@@ -32,6 +33,9 @@ class ReviewBot:
         }
         # Use provided store_url or fall back to settings
         self.store_url = store_url or settings.STORE_URL
+        
+        # Initialize progress manager for resume capability
+        self.progress = ProgressManager(self.store_url)
     
     def run(self):
         """Main execution flow"""
@@ -49,6 +53,13 @@ class ReviewBot:
             add_web_log('info', f'Reviews per product: {settings.MIN_REVIEWS_PER_PRODUCT}-{settings.MAX_REVIEWS_PER_PRODUCT} (random)')
             logger.info(f"📸 AI Images: {'Enabled' if settings.USE_AI_IMAGES else 'Disabled'}")
             add_web_log('info', f"AI Images: {'Enabled' if settings.USE_AI_IMAGES else 'Disabled'}")
+            
+            # Show resume status
+            resume_info = self.progress.get_resume_info()
+            if resume_info['has_progress']:
+                logger.info(f"🔄 RESUMING: {resume_info['products_done']} products already processed")
+                add_web_log('info', f"🔄 Resuming from previous run: {resume_info['products_done']} products done")
+            
             logger.info("=" * 70)
             
             # Start browser
@@ -107,6 +118,12 @@ class ReviewBot:
                                 if not product_data:
                                     logger.warning("Skipping - no data extracted")
                                     add_web_log('warning', f'Skipped product {prod_idx} - no data')
+                                    continue
+                                
+                                # Check if product already processed (resume support)
+                                if self.progress.is_product_processed(product_url):
+                                    logger.info(f"⏭️ Skipping - already processed in previous run")
+                                    add_web_log('info', f'Skipped {product_data["name"]} - already done')
                                     continue
                                 
                                 self.stats['products_processed'] += 1
@@ -182,6 +199,14 @@ class ReviewBot:
                                 logger.success(f"✅ Completed all {reviews_for_this_product} reviews for this product!")
                                 add_web_log('success', f'Completed all reviews for {product_data["name"]}')
                                 
+                                # Mark product as done and save progress
+                                product_reviews_posted = sum(1 for _ in range(reviews_for_this_product) if True)  # Count actual posted
+                                self.progress.mark_product_done(
+                                    product_url,
+                                    reviews_posted=self.stats['reviews_posted'] - (self.progress.stats['reviews_posted'] if hasattr(self.progress, 'stats') else 0),
+                                    images_generated=self.stats['images_generated'] - (self.progress.stats['images_generated'] if hasattr(self.progress, 'stats') else 0)
+                                )
+                                
                                 # Delay between PRODUCTS
                                 if prod_idx < len(products):
                                     delay = random.uniform(settings.MIN_DELAY * 2, settings.MAX_DELAY * 2)
@@ -211,6 +236,10 @@ class ReviewBot:
             # Print final stats
             self._print_stats()
             add_web_log('success', '🎉 Bot completed all tasks successfully!')
+            
+            # Clear progress on successful completion
+            self.progress.clear_progress()
+            add_web_log('info', '✨ Progress cleared - ready for next run')
             
         except KeyboardInterrupt:
             logger.warning("\n\n⚠️  Bot stopped by user")

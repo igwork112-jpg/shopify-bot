@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopify Review Bot - Control Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,22 +14,116 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0f;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background gradient */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(120, 0, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(0, 255, 200, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(255, 0, 150, 0.05) 0%, transparent 70%);
+            animation: bgPulse 8s ease-in-out infinite alternate;
+            z-index: -1;
+        }
+
+        @keyframes bgPulse {
+            0% {
+                opacity: 0.8;
+                transform: scale(1);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1.1);
+            }
+        }
+
+        /* Floating particles effect */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.1), transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.05), transparent),
+                radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.1), transparent),
+                radial-gradient(2px 2px at 130px 80px, rgba(255, 255, 255, 0.05), transparent),
+                radial-gradient(1px 1px at 160px 120px, rgba(255, 255, 255, 0.1), transparent);
+            background-size: 200px 200px;
+            animation: particleFloat 20s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(0);
+            }
+
+            100% {
+                transform: translateY(-200px);
+            }
         }
 
         .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 600px;
+            background: rgba(20, 20, 30, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow:
+                0 25px 80px rgba(0, 0, 0, 0.5),
+                0 0 40px rgba(120, 0, 255, 0.1),
+                inset 0 0 60px rgba(255, 255, 255, 0.02);
+            max-width: 640px;
             width: 100%;
-            padding: 40px;
+            padding: 45px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Glow border effect */
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #7c3aed, #06b6d4, #7c3aed);
+            border-radius: 26px;
+            z-index: -1;
+            opacity: 0.3;
+            animation: borderGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes borderGlow {
+
+            0%,
+            100% {
+                opacity: 0.3;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
         }
 
         .header {
@@ -36,33 +132,40 @@
         }
 
         .header h1 {
-            color: #2d3748;
-            font-size: 32px;
-            margin-bottom: 10px;
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #ffffff 0%, #a78bfa 50%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
         }
 
         .header p {
-            color: #718096;
-            font-size: 16px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 15px;
+            font-weight: 400;
         }
 
         .form-group {
-            margin-bottom: 30px;
+            margin-bottom: 24px;
         }
 
         .form-group label {
             display: block;
-            color: #2d3748;
+            color: rgba(255, 255, 255, 0.7);
             font-weight: 600;
             margin-bottom: 10px;
-            font-size: 14px;
+            font-size: 12px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1.2px;
         }
 
         .input-with-button {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             align-items: flex-start;
         }
 
@@ -71,75 +174,106 @@
         }
 
         .form-group input[type="text"],
-        .form-group input[type="number"] {
+        .form-group input[type="number"],
+        .form-group select {
             width: 100%;
-            padding: 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: all 0.3s;
+            padding: 16px 18px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            font-size: 15px;
+            color: #ffffff;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
         }
 
-        .form-group input:focus {
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #7c3aed;
+            background: rgba(124, 58, 237, 0.1);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2), 0 0 20px rgba(124, 58, 237, 0.1);
+        }
+
+        .form-group select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.5)' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 50px;
+        }
+
+        .form-group select option {
+            background: #1a1a2e;
+            color: #ffffff;
+            padding: 12px;
         }
 
         .btn-update {
-            padding: 15px 25px;
+            padding: 16px 24px;
             border: none;
-            border-radius: 10px;
-            background: #48bb78;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             white-space: nowrap;
-            font-size: 14px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
         }
 
         .btn-update:hover:not(:disabled) {
-            background: #38a169;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-update:active:not(:disabled) {
+            transform: translateY(0);
         }
 
         .btn-update:disabled {
-            opacity: 0.6;
+            opacity: 0.5;
             cursor: not-allowed;
         }
 
         .btn-update.success {
-            background: #38a169;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
         }
 
         .btn-update.success::before {
             content: "✓ ";
         }
 
-
-
         .checkbox-group {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 15px;
-            background: #f7fafc;
-            border-radius: 10px;
+            gap: 14px;
+            padding: 18px;
+            background: rgba(124, 58, 237, 0.1);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s;
         }
 
         .checkbox-group:hover {
-            background: #edf2f7;
+            background: rgba(124, 58, 237, 0.15);
+            border-color: rgba(124, 58, 237, 0.3);
         }
 
         .checkbox-group input[type="checkbox"] {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             cursor: pointer;
-            accent-color: #667eea;
+            accent-color: #7c3aed;
         }
 
         .checkbox-group label {
@@ -148,89 +282,126 @@
             flex: 1;
             text-transform: none;
             letter-spacing: normal;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .checkbox-group label small {
+            color: rgba(255, 255, 255, 0.5);
         }
 
         .button-group {
             display: flex;
             gap: 15px;
-            margin-top: 40px;
+            margin-top: 35px;
         }
 
         .btn {
             flex: 1;
             padding: 18px;
             border: none;
-            border-radius: 12px;
-            font-size: 16px;
+            border-radius: 14px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
             color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 30px rgba(124, 58, 237, 0.4);
         }
 
         .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(124, 58, 237, 0.5);
         }
 
         .btn-primary:disabled {
-            opacity: 0.6;
+            opacity: 0.5;
             cursor: not-allowed;
         }
 
         .btn-secondary {
-            background: #e2e8f0;
-            color: #2d3748;
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .btn-secondary:hover:not(:disabled) {
-            background: #cbd5e0;
-            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-3px);
+            border-color: rgba(255, 255, 255, 0.3);
         }
 
         .status-box {
             margin-top: 30px;
-            padding: 20px;
-            border-radius: 12px;
-            background: #f7fafc;
-            border: 2px solid #e2e8f0;
+            padding: 24px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             display: none;
         }
 
         .status-box.active {
             display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .status-box.running {
-            border-color: #48bb78;
-            background: #f0fff4;
+            border-color: rgba(16, 185, 129, 0.4);
+            background: rgba(16, 185, 129, 0.1);
         }
 
         .status-box.error {
-            border-color: #f56565;
-            background: #fff5f5;
+            border-color: rgba(239, 68, 68, 0.4);
+            background: rgba(239, 68, 68, 0.1);
         }
 
         .status-header {
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 15px;
+            margin-bottom: 18px;
             font-weight: 600;
-            color: #2d3748;
-            font-size: 18px;
+            color: #ffffff;
+            font-size: 16px;
         }
 
         .status-icon {
-            width: 24px;
-            height: 24px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -238,84 +409,130 @@
         }
 
         .status-icon.running {
-            background: #48bb78;
-            animation: pulse 2s infinite;
+            background: #10b981;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+            animation: statusPulse 1.5s infinite;
         }
 
         .status-icon.error {
-            background: #f56565;
+            background: #ef4444;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+        @keyframes statusPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 0.7;
+            }
         }
 
         .log-container {
-            max-height: 300px;
+            max-height: 280px;
             overflow-y: auto;
-            background: white;
-            border-radius: 8px;
-            padding: 15px;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            line-height: 1.6;
-            color: #2d3748;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            padding: 16px;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
         }
 
         .log-entry {
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             padding: 4px 0;
         }
 
-        .log-entry.info { color: #4299e1; }
-        .log-entry.success { color: #48bb78; }
-        .log-entry.error { color: #f56565; }
-        .log-entry.warning { color: #ed8936; }
+        .log-entry.info {
+            color: #60a5fa;
+        }
+
+        .log-entry.success {
+            color: #34d399;
+        }
+
+        .log-entry.error {
+            color: #f87171;
+        }
+
+        .log-entry.warning {
+            color: #fbbf24;
+        }
 
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-top: 15px;
+            gap: 12px;
+            margin-top: 16px;
         }
 
         .stat-card {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 18px;
+            border-radius: 12px;
             text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
         }
 
         .stat-number {
-            font-size: 32px;
-            font-weight: bold;
-            color: #667eea;
+            font-size: 36px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #7c3aed, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .stat-label {
-            font-size: 12px;
-            color: #718096;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 5px;
+            letter-spacing: 1px;
+            margin-top: 6px;
         }
 
         .help-text {
-            color: #718096;
-            font-size: 13px;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
             margin-top: 8px;
-            font-style: italic;
+            font-style: normal;
         }
 
         .success-message {
-            background: #f0fff4;
-            border: 2px solid #48bb78;
-            color: #22543d;
-            padding: 12px;
-            border-radius: 8px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+            padding: 12px 16px;
+            border-radius: 10px;
             margin-top: 10px;
-            font-size: 14px;
+            font-size: 13px;
             display: none;
         }
 
@@ -325,11 +542,19 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -341,12 +566,7 @@
             <div class="form-group">
                 <label>Store URL</label>
                 <div class="input-with-button">
-                    <input 
-                        type="text" 
-                        id="storeUrl" 
-                        placeholder="https://your-store.myshopify.com"
-                        required
-                    >
+                    <input type="text" id="storeUrl" placeholder="https://your-store.myshopify.com" required>
                     <button type="button" class="btn-update" id="updateUrlBtn">
                         Update
                     </button>
@@ -360,12 +580,7 @@
             <div class="form-group">
                 <label>OpenAI API Key</label>
                 <div class="input-with-button">
-                    <input 
-                        type="text" 
-                        id="apiKey" 
-                        placeholder="sk-proj-..."
-                        required
-                    >
+                    <input type="text" id="apiKey" placeholder="sk-proj-..." required>
                     <button type="button" class="btn-update" id="updateApiBtn">
                         Update
                     </button>
@@ -377,21 +592,35 @@
             </div>
 
             <div class="form-group">
-                <div class="checkbox-group" style="background: #f0fff4; border: 2px solid #48bb78;">
-                    <span style="font-size: 24px;">🎲</span>
-                    <label>
-                        <strong>Reviews Per Product: 7-15 (Random)</strong><br>
-                        <small>Each product will receive a random number of reviews</small>
-                    </label>
+                <label>Gemini API Key</label>
+                <div class="input-with-button">
+                    <input type="text" id="geminiApiKey" placeholder="AI...">
+                    <button type="button" class="btn-update" id="updateGeminiApiBtn">
+                        Update
+                    </button>
                 </div>
+                <div class="success-message" id="geminiApiSuccessMsg">
+                    ✓ Gemini API Key saved to configuration!
+                </div>
+                <p class="help-text">Your Gemini API key for image generation (optional)</p>
+            </div>
+
+            <div class="form-group">
+                <label>🖼️ Image Generation Provider</label>
+                <select id="imageProvider">
+                    <option value="gemini">Gemini 2.0 Flash (Fast & Free Tier)</option>
+                    <option value="openai">OpenAI GPT-Image-1 (Premium Quality)</option>
+                    <option value="none">None (No AI Images)</option>
+                </select>
+                <p class="help-text">Choose which AI provider to use for generating review images</p>
             </div>
 
             <div class="form-group">
                 <div class="checkbox-group">
-                    <input type="checkbox" id="useAiImages" checked>
-                    <label for="useAiImages">
-                        <strong>Use AI-Processed Images</strong><br>
-                        <small>Download and enhance product images for reviews</small>
+                    <span style="font-size: 24px;">🎲</span>
+                    <label>
+                        <strong>Reviews Per Product: 7-15 (Random)</strong><br>
+                        <small>Each product will receive a random number of reviews</small>
                     </label>
                 </div>
             </div>
@@ -404,6 +633,13 @@
                     ⏹️ Stop Bot
                 </button>
             </div>
+
+            <div class="button-group" style="margin-top: 15px;">
+                <button type="button" class="btn btn-secondary" id="clearProgressBtn"
+                    style="flex: none; padding: 12px 20px; font-size: 12px;">
+                    🗑️ Clear Progress
+                </button>
+            </div>
         </div>
 
         <div class="status-box" id="statusBox">
@@ -411,7 +647,7 @@
                 <div class="status-icon" id="statusIcon">●</div>
                 <span id="statusText">Ready</span>
             </div>
-            
+
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-number" id="statProducts">0</div>
@@ -435,18 +671,18 @@
         // Update Store URL
         const updateUrlBtn = document.getElementById('updateUrlBtn');
         const urlSuccessMsg = document.getElementById('urlSuccessMsg');
-        
-        updateUrlBtn.addEventListener('click', async function() {
+
+        updateUrlBtn.addEventListener('click', async function () {
             const storeUrl = document.getElementById('storeUrl').value.trim();
-            
+
             if (!storeUrl) {
                 alert('Please enter a store URL');
                 return;
             }
-            
+
             updateUrlBtn.disabled = true;
             updateUrlBtn.textContent = 'Updating...';
-            
+
             try {
                 const response = await fetch('/update-config', {
                     method: 'POST',
@@ -458,14 +694,14 @@
                         value: storeUrl
                     })
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (data.success) {
                     updateUrlBtn.classList.add('success');
                     updateUrlBtn.textContent = 'Saved';
                     urlSuccessMsg.classList.add('show');
-                    
+
                     setTimeout(() => {
                         updateUrlBtn.classList.remove('success');
                         updateUrlBtn.textContent = 'Update';
@@ -486,18 +722,18 @@
         // Update API Key
         const updateApiBtn = document.getElementById('updateApiBtn');
         const apiSuccessMsg = document.getElementById('apiSuccessMsg');
-        
-        updateApiBtn.addEventListener('click', async function() {
+
+        updateApiBtn.addEventListener('click', async function () {
             const apiKey = document.getElementById('apiKey').value.trim();
-            
+
             if (!apiKey) {
                 alert('Please enter an API key');
                 return;
             }
-            
+
             updateApiBtn.disabled = true;
             updateApiBtn.textContent = 'Updating...';
-            
+
             try {
                 console.log('Updating API Key...');
                 const response = await fetch('/update-config', {
@@ -512,19 +748,19 @@
                 });
 
                 console.log('API Key update response status:', response.status);
-                
+
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                
+
                 const data = await response.json();
                 console.log('API Key update response data:', data);
-                
+
                 if (data.success) {
                     updateApiBtn.classList.add('success');
                     updateApiBtn.textContent = 'Saved';
                     apiSuccessMsg.classList.add('show');
-                    
+
                     setTimeout(() => {
                         updateApiBtn.classList.remove('success');
                         updateApiBtn.textContent = 'Update';
@@ -542,6 +778,57 @@
             }
         });
 
+        // Update Gemini API Key
+        const updateGeminiApiBtn = document.getElementById('updateGeminiApiBtn');
+        const geminiApiSuccessMsg = document.getElementById('geminiApiSuccessMsg');
+
+        updateGeminiApiBtn.addEventListener('click', async function () {
+            const geminiApiKey = document.getElementById('geminiApiKey').value.trim();
+
+            if (!geminiApiKey) {
+                alert('Please enter a Gemini API key');
+                return;
+            }
+
+            updateGeminiApiBtn.disabled = true;
+            updateGeminiApiBtn.textContent = 'Updating...';
+
+            try {
+                const response = await fetch('/update-config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        field: 'GEMINI_API_KEY',
+                        value: geminiApiKey
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    updateGeminiApiBtn.classList.add('success');
+                    updateGeminiApiBtn.textContent = 'Saved';
+                    geminiApiSuccessMsg.classList.add('show');
+
+                    setTimeout(() => {
+                        updateGeminiApiBtn.classList.remove('success');
+                        updateGeminiApiBtn.textContent = 'Update';
+                        geminiApiSuccessMsg.classList.remove('show');
+                    }, 3000);
+                } else {
+                    alert('Error: ' + data.message);
+                    updateGeminiApiBtn.textContent = 'Update';
+                }
+            } catch (error) {
+                alert('Backend connection failed! Make sure Flask is running: python app.py');
+                updateGeminiApiBtn.textContent = 'Update';
+            } finally {
+                updateGeminiApiBtn.disabled = false;
+            }
+        });
+
         // Start Bot
         const startBtn = document.getElementById('startBtn');
         const stopBtn = document.getElementById('stopBtn');
@@ -552,10 +839,10 @@
 
         let isRunning = false;
 
-        startBtn.addEventListener('click', async function(e) {
+        startBtn.addEventListener('click', async function (e) {
             e.preventDefault();
             console.log('Start button clicked');
-            
+
             if (isRunning) {
                 console.log('Bot already running');
                 return;
@@ -563,19 +850,27 @@
 
             const storeUrl = document.getElementById('storeUrl').value.trim();
             const apiKey = document.getElementById('apiKey').value.trim();
-            const useAiImages = document.getElementById('useAiImages').checked;
+            const geminiApiKey = document.getElementById('geminiApiKey').value.trim();
+            const imageProvider = document.getElementById('imageProvider').value;
 
-            console.log('Configuration:', { storeUrl, apiKey: '***', useAiImages });
+            console.log('Configuration:', { storeUrl, apiKey: '***', geminiApiKey: '***', imageProvider });
 
             if (!storeUrl || !apiKey) {
                 alert('Please set Store URL and API Key first');
                 return;
             }
 
+            // Validate provider-specific API keys
+            if (imageProvider === 'gemini' && !geminiApiKey) {
+                alert('Please provide a Gemini API Key for image generation, or select a different provider');
+                return;
+            }
+
             const config = {
                 storeUrl: storeUrl,
                 apiKey: apiKey,
-                useAiImages: useAiImages,
+                geminiApiKey: geminiApiKey,
+                imageProvider: imageProvider,
                 headless: true  // Always headless
             };
 
@@ -585,7 +880,7 @@
             statusBox.classList.add('active', 'running');
             statusIcon.classList.add('running');
             statusText.textContent = 'Bot Running...';
-            
+
             // Update button states
             startBtn.disabled = true;
             stopBtn.disabled = false;
@@ -595,7 +890,7 @@
             addLog('info', 'Starting bot with configuration...');
             addLog('info', `Store: ${config.storeUrl}`);
             addLog('info', 'Reviews per product: 7-15 (random)');
-            addLog('info', `AI Images: ${config.useAiImages ? 'Enabled' : 'Disabled'}`);
+            addLog('info', `Image Provider: ${config.imageProvider === 'none' ? 'Disabled' : config.imageProvider.toUpperCase()}`);
             addLog('info', 'Headless: Always enabled (background mode)');
 
             try {
@@ -611,7 +906,7 @@
                 console.log('Response status:', response.status);
                 const data = await response.json();
                 console.log('Response data:', data);
-                
+
                 if (data.success) {
                     addLog('success', 'Bot started successfully!');
                     pollBotStatus();
@@ -627,14 +922,14 @@
             }
         });
 
-        stopBtn.addEventListener('click', async function() {
+        stopBtn.addEventListener('click', async function () {
             addLog('warning', 'Stopping bot...');
-            
+
             try {
                 const response = await fetch('/stop-bot', {
                     method: 'POST'
                 });
-                
+
                 const data = await response.json();
                 addLog('success', 'Bot stopped successfully');
                 resetButtons();
@@ -690,6 +985,31 @@
 
         // Test button on page load
         console.log('Page loaded, Start button:', startBtn);
+
+        // Clear Progress button
+        document.getElementById('clearProgressBtn').addEventListener('click', async function () {
+            if (!confirm('Are you sure you want to clear all progress? The bot will start from scratch on the next run.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/clear-progress', {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ Progress cleared! The bot will start fresh on the next run.');
+                    addLog('info', '🗑️ Progress cleared - ready for fresh start');
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                alert('Error clearing progress: ' + error.message);
+            }
+        });
     </script>
 </body>
+
 </html>

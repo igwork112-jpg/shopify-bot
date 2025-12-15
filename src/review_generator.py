@@ -1,20 +1,29 @@
 from typing import Dict, Optional
 import random
 import requests
+import base64
 from pathlib import Path
 from io import BytesIO
 from PIL import Image
 from openai import OpenAI
+from google import genai
+from google.genai import types
 from config.settings import settings
 from utils.logger import logger
 
 class ReviewGenerator:
-    """Generates AI-powered product reviews with GPT-Image-1 photos"""
+    """Generates AI-powered product reviews with Gemini/Nano Banana photos"""
     
     def __init__(self):
         self.client = OpenAI(api_key=settings.OPENAI_API_KEY)
         self.model = "gpt-4o"
         self.temp_dir = settings.TEMP_DIR
+        
+        # Initialize Gemini client only if API key is provided
+        if settings.GEMINI_API_KEY and settings.GEMINI_API_KEY != 'YOUR_GEMINI_API_KEY_HERE':
+            self.gemini_client = genai.Client(api_key=settings.GEMINI_API_KEY)
+        else:
+            self.gemini_client = None
     
     def generate(self, product_name: str, product_description: str = "", 
                  product_image_url: str = None, with_image: bool = True) -> Dict:
@@ -72,8 +81,21 @@ class ReviewGenerator:
                 
             )
             
-            # Step 3: Generate customer photo with GPT-Image-1
-            image_path = self._generate_with_gpt_image_1(customer_photo_prompt, product_name)
+            # Step 3: Generate customer photo based on provider selection
+            provider = settings.IMAGE_PROVIDER.lower()
+            logger.info(f"🎨 Using image provider: {provider}")
+            
+            if provider == 'gemini':
+                image_path = self._generate_with_gemini(customer_photo_prompt, product_name)
+            elif provider == 'openai':
+                image_path = self._generate_with_gpt_image_1(customer_photo_prompt, product_name)
+            elif provider == 'none':
+                logger.info("⏭️ Image generation disabled by provider setting")
+                return None
+            else:
+                # Default fallback to Gemini
+                logger.warning(f"Unknown provider '{provider}', falling back to Gemini")
+                image_path = self._generate_with_gemini(customer_photo_prompt, product_name)
             
             if image_path:
                 logger.success(f"✅ Review image generated: {image_path.name}")
@@ -325,12 +347,55 @@ class ReviewGenerator:
             f"wall colors, lighting, and angles every time. Unique variation seed: {unique_seed}. "
             f"This must look like a real person took this photo with their phone to share in a product review - "
             f"not a professional or marketing photo. Authentic, casual, unpolished."
+            f"Image should be generated according to the product usecase"
         )
         
         logger.debug(f"🎨 Prompt: {prompt[:150]}...")
         return prompt
+    def _generate_with_gemini(self, prompt: str, product_name: str) -> Optional[Path]:
+        """Generate customer review photo using Gemini (Nano Banana)"""
+        try:
+            # Check if Gemini client is available
+            if self.gemini_client is None:
+                logger.error("Gemini client not initialized - no API key provided")
+                return None
+            
+            logger.info("🎨 Generating customer photo with Gemini (Nano Banana)...")
+            
+            response = self.gemini_client.models.generate_content(
+                model="gemini-2.0-flash-exp",
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    response_modalities=['Text', 'Image']
+                )
+            )
+            
+            # Extract image from response
+            for part in response.candidates[0].content.parts:
+                if part.inline_data is not None:
+                    # Decode base64 image data
+                    img_data = part.inline_data.data
+                    img = Image.open(BytesIO(img_data))
+                    
+                    if img.mode != 'RGB':
+                        img = img.convert('RGB')
+                    
+                    # Save with unique filename
+                    filename = f"ai_review_{random.randint(10000, 99999)}.jpg"
+                    filepath = self.temp_dir / filename
+                    img.save(filepath, "JPEG", quality=90)
+                    
+                    return filepath
+            
+            logger.error("No image data in Gemini response")
+            return None
+                
+        except Exception as e:
+            logger.error(f"Gemini image generation failed: {e}")
+            return None
+    
     def _generate_with_gpt_image_1(self, prompt: str, product_name: str) -> Optional[Path]:
-        """Generate customer review photo using GPT-Image-1"""
+        """Generate customer review photo using GPT-Image-1 (backup method)"""
         try:
             logger.info("🎨 Generating customer photo with GPT-Image-1...")
             
@@ -367,7 +432,6 @@ class ReviewGenerator:
             # Handle base64 response
             elif hasattr(response.data[0], "b64_json") and response.data[0].b64_json:
                 logger.debug("Image received as base64")
-                import base64
                 img_data = base64.b64decode(response.data[0].b64_json)
                 
                 filename = f"ai_review_{random.randint(10000, 99999)}.jpg"

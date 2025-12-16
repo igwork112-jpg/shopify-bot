@@ -353,27 +353,27 @@ class ReviewGenerator:
         logger.debug(f"🎨 Prompt: {prompt[:150]}...")
         return prompt
     def _generate_with_gemini(self, prompt: str, product_name: str) -> Optional[Path]:
-        """Generate customer review photo using Gemini (Nano Banana)"""
+        """Generate customer review photo using Gemini 2.5 Flash Image (Nano Banana)"""
         try:
             # Check if Gemini client is available
             if self.gemini_client is None:
                 logger.error("Gemini client not initialized - no API key provided")
                 return None
             
-            logger.info("🎨 Generating customer photo with Gemini (Nano Banana)...")
+            logger.info("🎨 Generating customer photo with Gemini 2.5 Flash Image...")
             
+            # Use simpler API matching official Google documentation
             response = self.gemini_client.models.generate_content(
-                model="gemini-2.0-flash-exp",
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    response_modalities=['Text', 'Image']
-                )
+                model="gemini-2.5-flash-image",
+                contents=[prompt],
             )
             
-            # Extract image from response
-            for part in response.candidates[0].content.parts:
-                if part.inline_data is not None:
-                    # Decode base64 image data
+            # Extract image from response using response.parts (official method)
+            for part in response.parts:
+                if part.text is not None:
+                    logger.debug(f"📝 Text response: {part.text[:100]}...")
+                elif part.inline_data is not None:
+                    # Get image data
                     img_data = part.inline_data.data
                     img = Image.open(BytesIO(img_data))
                     
@@ -385,6 +385,7 @@ class ReviewGenerator:
                     filepath = self.temp_dir / filename
                     img.save(filepath, "JPEG", quality=90)
                     
+                    logger.success(f"✅ Gemini image saved: {filepath.name}")
                     return filepath
             
             logger.error("No image data in Gemini response")

@@ -1,0 +1,16 @@
+{
+  "store_url": "https://castorsuk.co.uk/",
+  "started_at": "2025-12-16T19:27:29.414115",
+  "last_updated": "2025-12-16T19:54:07.212895",
+  "processed_products": [
+    "https://castorsuk.co.uk/collections/industrial-grade-wheels/products/100mm-white-nylon-wheel",
+    "https://castorsuk.co.uk/collections/industrial-grade-wheels/products/125mm-antistatic-wheel"
+  ],
+  "stats": {
+    "collections_processed": 0,
+    "products_processed": 2,
+    "reviews_posted": 18,
+    "reviews_failed": 0,
+    "images_generated": 18
+  }
+}

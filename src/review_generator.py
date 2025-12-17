@@ -86,7 +86,7 @@ class ReviewGenerator:
             logger.info(f"🎨 Using image provider: {provider}")
             
             if provider == 'gemini':
-                image_path = self._generate_with_gemini(customer_photo_prompt, product_name)
+                image_path = self._generate_with_gemini(customer_photo_prompt, product_name, product_image_url)
             elif provider == 'openai':
                 image_path = self._generate_with_gpt_image_1(customer_photo_prompt, product_name)
             elif provider == 'none':
@@ -95,7 +95,7 @@ class ReviewGenerator:
             else:
                 # Default fallback to Gemini
                 logger.warning(f"Unknown provider '{provider}', falling back to Gemini")
-                image_path = self._generate_with_gemini(customer_photo_prompt, product_name)
+                image_path = self._generate_with_gemini(customer_photo_prompt, product_name, product_image_url)
             
             if image_path:
                 logger.success(f"✅ Review image generated: {image_path.name}")
@@ -352,20 +352,75 @@ class ReviewGenerator:
         
         logger.debug(f"🎨 Prompt: {prompt[:150]}...")
         return prompt
-    def _generate_with_gemini(self, prompt: str, product_name: str) -> Optional[Path]:
-        """Generate customer review photo using Gemini 2.5 Flash Image (Nano Banana)"""
+    def _generate_with_gemini(self, prompt: str, product_name: str, product_image_url: str = None) -> Optional[Path]:
+        """Generate customer review photo using Gemini 2.5 Flash Image with image-to-image approach"""
         try:
             # Check if Gemini client is available
             if self.gemini_client is None:
                 logger.error("Gemini client not initialized - no API key provided")
                 return None
             
-            logger.info("🎨 Generating customer photo with Gemini 2.5 Flash Image...")
+            logger.info("🎨 Generating customer photo with Gemini 2.5 Flash Image (image-to-image)...")
             
-            # Use simpler API matching official Google documentation
+            # Build contents list with optional image input
+            contents = []
+            
+            # If product image URL is provided, download and include it for image-to-image
+            if product_image_url:
+                try:
+                    logger.info(f"📥 Downloading product image for Gemini image-to-image...")
+                    img_response = requests.get(product_image_url, timeout=30)
+                    
+                    if img_response.status_code == 200:
+                        # Load and prepare the image
+                        original_img = Image.open(BytesIO(img_response.content))
+                        
+                        # Convert to RGB if necessary
+                        if original_img.mode != 'RGB':
+                            original_img = original_img.convert('RGB')
+                        
+                        # Resize if too large (Gemini has limits)
+                        max_size = 1024
+                        if original_img.width > max_size or original_img.height > max_size:
+                            original_img.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
+                        
+                        # Convert to bytes for Gemini
+                        img_buffer = BytesIO()
+                        original_img.save(img_buffer, format='JPEG', quality=85)
+                        img_bytes = img_buffer.getvalue()
+                        
+                        # Create image part for Gemini
+                        image_part = types.Part.from_bytes(
+                            data=img_bytes,
+                            mime_type="image/jpeg"
+                        )
+                        
+                        # Build prompt that references the input image
+                        enhanced_prompt = (
+                            f"Dont include human faces in the image and also dont repl"
+                            f"Using this product image as reference, generate a realistic customer review photo. "
+                            f"The product shown in the reference image is: {product_name}. "
+                            f"Create a photo that looks like a real customer took it with their phone to share in a review. "
+                            f"Keep the product looking exactly like the reference image but place it in a realistic home/commercial setting. "
+                            f"{prompt}"
+                        )
+                        
+                        contents = [prompt, image_part]
+                        logger.info("✅ Product image loaded for image-to-image generation")
+                    else:
+                        logger.warning(f"Failed to download product image (HTTP {img_response.status_code}), using text-only prompt")
+                        contents = [prompt]
+                        
+                except Exception as img_error:
+                    logger.warning(f"Error loading product image: {img_error}, using text-only prompt")
+                    contents = [prompt]
+            else:
+                contents = [prompt]
+            
+            # Use Gemini API for image generation
             response = self.gemini_client.models.generate_content(
                 model="gemini-2.5-flash-image",
-                contents=[prompt],
+                contents=contents,
             )
             
             # Extract image from response using response.parts (official method)

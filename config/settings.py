@@ -19,6 +19,11 @@ class Settings:
         # Image Generation Provider: 'gemini', 'openai', or 'none'
         self.IMAGE_PROVIDER = os.getenv('IMAGE_PROVIDER', 'gemini').lower()
         
+        # Auto-fallback: If provider is 'gemini' but no Gemini API key, fallback to openai
+        if self.IMAGE_PROVIDER == 'gemini' and not self.GEMINI_API_KEY:
+            self.IMAGE_PROVIDER = 'openai'
+            print("[SETTINGS] No Gemini API key found, falling back to OpenAI for image generation")
+        
         # Bot Settings - Random reviews per product (range)
         self.MIN_REVIEWS_PER_PRODUCT = int(os.getenv('MIN_REVIEWS_PER_PRODUCT', '7'))
         self.MAX_REVIEWS_PER_PRODUCT = int(os.getenv('MAX_REVIEWS_PER_PRODUCT', '15'))

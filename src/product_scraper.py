@@ -443,6 +443,22 @@ class ProductScraper:
     
     def _extract_image(self) -> str:
         """Extract product image - try multiple selectors"""
+        
+        # Try og:image meta tag FIRST (most reliable for Shopify)
+        try:
+            og_image = self.page.query_selector("meta[property='og:image']")
+            if og_image:
+                content = og_image.get_attribute("content")
+                if content:
+                    # Handle protocol-relative URLs
+                    if content.startswith('//'):
+                        content = 'https:' + content
+                    logger.success(f"✅ Extracted image via og:image: {content[:60]}...")
+                    return content
+        except Exception as e:
+            logger.debug(f"og:image extraction failed: {e}")
+        
+        # Fallback to other image selectors
         image_selectors = [
             "img.product-gallery__image",
             "img[data-zoom]",

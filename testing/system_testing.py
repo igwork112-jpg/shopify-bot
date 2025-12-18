@@ -14,21 +14,7 @@ SCREENSHOTS_DIR.mkdir(exist_ok=True)
 
 STORES = [
 
-'https://rubberco.co.uk/',
-'https://slip-not.co.uk/',
-'https://expressmatting.co.uk/',
-'https://stairnosingsuk.co.uk/',
-'https://pvcstripcurtainsuk.uk/',
-'https://industrialsuppliesco.co.uk/',
- 'https://industrialproducts-uk.co.uk/',
-'https://www.floorsafetyuk.co.uk/,'
-
-'https://tarpaulinscompany.co.uk/',
-'https://tarpaulinsuk.uk/',
-'https://barriersco.co.uk/',
-'https://www.pondlinersco.co.uk/',
-'https://rubberfloorings.co.uk/',
-'https://rubbermatting-direct.co.uk/',
+"https://buildinsulation.co.uk/",
 ]
 
 # Will store working selectors for each step
@@ -137,6 +123,110 @@ def test_complete_flow(page, store_url):
         page.goto(first_product, wait_until="domcontentloaded", timeout=30000)
         time.sleep(4)
         result['step_reached'] = 'PRODUCT_LOADED'
+        
+        # ✅ TEST IMAGE URL SCRAPING
+        print(f"\n🖼️ TESTING IMAGE URL SCRAPING", flush=True)
+        print(f"{'='*60}", flush=True)
+        
+        image_selectors = [
+            "meta[property='og:image']",
+            ".product__media img",
+            ".product-single__photo img", 
+            "[data-product-featured-image]",
+            ".product-featured-media img",
+            ".product-images img",
+            ".product__image-wrapper img",
+            ".product-gallery img",
+            "img.lazyload",
+            ".product img",
+            "img[srcset]",
+        ]
+        
+        product_image_url = None
+        
+        # Try meta tag first (most reliable)
+        try:
+            og_image = page.query_selector("meta[property='og:image']")
+            if og_image:
+                content = og_image.get_attribute("content")
+                if content:
+                    product_image_url = content
+                    print(f"   ✅ Found via meta[og:image]: {product_image_url[:80]}...", flush=True)
+        except Exception as e:
+            print(f"   ❌ Meta tag failed: {e}", flush=True)
+        
+        # Try other selectors if meta tag didn't work
+        if not product_image_url:
+            for sel in image_selectors[1:]:  # Skip og:image, already tried
+                try:
+                    count = page.locator(sel).count()
+                    print(f"   {sel}: {count} found", flush=True)
+                    
+                    if count > 0:
+                        img = page.locator(sel).first
+                        src = img.get_attribute("src") or img.get_attribute("data-src") or img.get_attribute("data-srcset")
+                        
+                        if src:
+                            # Clean up the URL
+                            if src.startswith("//"):
+                                src = "https:" + src
+                            elif not src.startswith("http"):
+                                src = store_url.rstrip("/") + src
+                            
+                            # Remove size modifiers if present
+                            if "_" in src and src.endswith((".jpg", ".png", ".webp")):
+                                base = src.rsplit("_", 1)
+                                if len(base) == 2 and base[1].split(".")[0].isdigit():
+                                    pass  # Keep as is for now
+                            
+                            product_image_url = src.split("?")[0]
+                            print(f"   ✅ Found via {sel}: {product_image_url[:80]}...", flush=True)
+                            break
+                except Exception as e:
+                    print(f"   ❌ {sel} failed: {str(e)[:50]}", flush=True)
+        
+        # Try JavaScript extraction as fallback
+        if not product_image_url:
+            print(f"   Trying JavaScript extraction...", flush=True)
+            try:
+                js_result = page.evaluate("""
+                    () => {
+                        // Try og:image
+                        const og = document.querySelector('meta[property="og:image"]');
+                        if (og && og.content) return og.content;
+                        
+                        // Try product images
+                        const imgs = document.querySelectorAll('.product img, .product-single img, [class*="product"] img');
+                        for (const img of imgs) {
+                            const src = img.src || img.dataset.src;
+                            if (src && src.includes('cdn.shopify.com')) return src;
+                        }
+                        
+                        // Try any image with shopify CDN
+                        const allImgs = document.querySelectorAll('img');
+                        for (const img of allImgs) {
+                            const src = img.src || img.dataset.src;
+                            if (src && src.includes('cdn.shopify.com') && !src.includes('logo')) return src;
+                        }
+                        
+                        return null;
+                    }
+                """)
+                if js_result:
+                    product_image_url = js_result
+                    print(f"   ✅ Found via JavaScript: {product_image_url[:80]}...", flush=True)
+            except Exception as e:
+                print(f"   ❌ JavaScript extraction failed: {e}", flush=True)
+        
+        if product_image_url:
+            print(f"\n   🎯 FINAL IMAGE URL:", flush=True)
+            print(f"   {product_image_url}", flush=True)
+            result['product_image_url'] = product_image_url
+        else:
+            print(f"\n   ⚠️ NO IMAGE URL FOUND!", flush=True)
+            result['product_image_url'] = None
+        
+        print(f"{'='*60}", flush=True)
         
         # STEP 6: Scroll
         print(f"\n📜 STEP 6: Scrolling to load Loox", flush=True)

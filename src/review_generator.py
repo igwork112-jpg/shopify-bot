@@ -39,16 +39,17 @@ class ReviewGenerator:
         
         # Generate AI image if requested and product image URL provided
         if with_image and product_image_url:
-            try:
-                image_path = self.generate_review_image_with_vision(
-                    product_name, 
-                    product_image_url,
-                    product_description
-                )
-                review_data['image_path'] = image_path
-            except Exception as e:
-                logger.warning(f"Image generation failed: {e}")
-                review_data['image_path'] = None
+            image_path = self.generate_review_image_with_vision(
+                product_name, 
+                product_image_url,
+                product_description
+            )
+            
+            # If image generation failed, raise exception to stop the bot
+            if image_path is None:
+                raise Exception(f"Image generation failed for {product_name} - stopping bot to preserve progress")
+            
+            review_data['image_path'] = image_path
         else:
             review_data['image_path'] = None
         

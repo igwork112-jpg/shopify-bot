@@ -254,6 +254,55 @@ def clear_progress():
         return jsonify({'success': False, 'message': str(e)}), 500
 
 
+@app.route('/check-progress', methods=['GET'])
+def check_progress():
+    """Check if there's saved progress for resume functionality"""
+    try:
+        import json
+        progress_file = Path('progress.json')
+        
+        if not progress_file.exists():
+            return jsonify({
+                'hasProgress': False,
+                'productsProcessed': 0,
+                'reviewsPosted': 0,
+                'currentProduct': None
+            })
+        
+        with open(progress_file, 'r') as f:
+            data = json.load(f)
+        
+        # Check if there's actual progress
+        processed_products = data.get('processed_products', [])
+        current_product = data.get('current_product', None)
+        stats = data.get('stats', {})
+        
+        has_progress = len(processed_products) > 0 or current_product is not None
+        
+        response_data = {
+            'hasProgress': has_progress,
+            'productsProcessed': len(processed_products),
+            'reviewsPosted': stats.get('reviews_posted', 0)
+        }
+        
+        # Add current product info if available
+        if current_product:
+            response_data['currentProduct'] = {
+                'reviewsCompleted': current_product.get('reviews_completed', 0),
+                'totalReviews': current_product.get('total_reviews', 0)
+            }
+        
+        return jsonify(response_data)
+    
+    except Exception as e:
+        return jsonify({
+            'hasProgress': False,
+            'productsProcessed': 0,
+            'reviewsPosted': 0,
+            'error': str(e)
+        })
+
+
 # ============================================================
 # BOT EXECUTION LOGIC
 # ============================================================
@@ -290,6 +339,9 @@ def run_bot():
 
         add_log('success', 'Bot initialized successfully')
         add_log('info', 'Starting review automation...')
+        
+        # Register stop check callback with main module
+        main.set_stop_check(lambda: bot_state['stop_requested'])
 
         # Create bot instance with FRESH store URL from settings
         store_url = settings.STORE_URL
@@ -328,13 +380,15 @@ def run_bot():
         bot_state['running'] = False
 
     except KeyboardInterrupt:
-        add_log('warning', 'Bot stopped by user')
+        add_log('warning', '⚠️ Bot stopped by user')
+        add_log('info', '💾 Progress saved - use Resume Bot to continue')
         bot_state['running'] = False
     except Exception as e:
         import traceback
         add_log('error', f'❌ Bot error: {e}')
+        add_log('info', '💾 Progress saved - use Resume Bot to continue from where it crashed')
         tb = traceback.format_exc()
-        for line in tb.split('\n')[:10]:  # Show first 10 lines of traceback
+        for line in tb.split('\n')[:5]:  # Show first 5 lines of traceback
             if line.strip():
                 add_log('error', line.strip())
         bot_state['running'] = False

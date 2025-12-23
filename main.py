@@ -11,6 +11,20 @@ from src.progress_manager import ProgressManager
 # Global web logs for Flask interface
 web_logs = []
 
+# Global stop check function - set by app.py
+stop_check_fn = None
+
+def set_stop_check(fn):
+    """Set the stop check function from app.py"""
+    global stop_check_fn
+    stop_check_fn = fn
+
+def check_stop_signal():
+    """Check if stop was requested and raise if so"""
+    global stop_check_fn
+    if stop_check_fn and stop_check_fn():
+        raise KeyboardInterrupt("Stop requested by user")
+
 def add_web_log(log_type, message):
     """Add log for web interface"""
     global web_logs
@@ -59,6 +73,12 @@ class ReviewBot:
             if resume_info['has_progress']:
                 logger.info(f"🔄 RESUMING: {resume_info['products_done']} products already processed")
                 add_web_log('info', f"🔄 Resuming from previous run: {resume_info['products_done']} products done")
+                
+                # Show in-progress product info if available
+                if 'in_progress_product' in resume_info:
+                    in_prog = resume_info['in_progress_product']
+                    logger.info(f"   📦 In-progress: {in_prog['reviews_completed']}/{in_prog['total_reviews']} reviews done")
+                    add_web_log('info', f"📦 Resuming product at review {in_prog['reviews_completed'] + 1}/{in_prog['total_reviews']}")
             
             logger.info("=" * 70)
             
@@ -134,10 +154,29 @@ class ReviewBot:
                                     settings.MIN_REVIEWS_PER_PRODUCT, 
                                     settings.MAX_REVIEWS_PER_PRODUCT
                                 )
-                                logger.info(f"📊 Will post {reviews_for_this_product} reviews for this product")
-                                add_web_log('info', f'Will post {reviews_for_this_product} reviews for {product_data["name"]}')
                                 
-                                for review_num in range(1, reviews_for_this_product + 1):
+                                # Get starting review number (may resume from previous run)
+                                start_review_num = self.progress.start_product(
+                                    product_url, 
+                                    reviews_for_this_product,
+                                    coll_idx,
+                                    prod_idx
+                                )
+                                
+                                if start_review_num > 1:
+                                    logger.info(f"🔄 Resuming from review {start_review_num}/{reviews_for_this_product}")
+                                    add_web_log('info', f'🔄 Resuming from review {start_review_num}/{reviews_for_this_product} for {product_data["name"]}')
+                                else:
+                                    logger.info(f"📊 Will post {reviews_for_this_product} reviews for this product")
+                                    add_web_log('info', f'Will post {reviews_for_this_product} reviews for {product_data["name"]}')
+                                
+                                # Track images for this product
+                                images_this_product = 0
+                                
+                                for review_num in range(start_review_num, reviews_for_this_product + 1):
+                                    # Check for stop signal before each review
+                                    check_stop_signal()
+                                    
                                     logger.info(f"\n📝 REVIEW {review_num}/{reviews_for_this_product} FOR THIS PRODUCT")
                                     add_web_log('info', f'Generating review {review_num}/{reviews_for_this_product} for {product_data["name"]}')
                                     logger.info("-" * 50)
@@ -150,6 +189,9 @@ class ReviewBot:
                                         with_image=settings.USE_AI_IMAGES  # ← Control image generation
                                     )
                                     
+                                    # Check stop signal after generation (can take time)
+                                    check_stop_signal()
+                                    
                                     logger.info(f"⭐ Rating: {review_data['rating']} stars")
                                     logger.info(f"👤 Name: {review_data['first_name']} {review_data['last_name']}")
                                     logger.info(f"📧 Email: {review_data['email']}")
@@ -157,7 +199,7 @@ class ReviewBot:
                                     
                                     # Track image generation
                                     if review_data.get('image_path'):
-                                        self.stats['images_generated'] += 1
+                                        images_this_product += 1
                                         logger.info(f"📸 AI Image: {review_data['image_path'].name}")
                                         add_web_log('success', f'Generated AI image for review {review_num}')
                                     
@@ -167,12 +209,16 @@ class ReviewBot:
                                         image_path=review_data.get('image_path')
                                     )
                                     
+                                    # Mark review done and save progress immediately
+                                    self.progress.mark_review_done(success=success)
+                                    
+                                    # Check stop signal after posting (can take time)
+                                    check_stop_signal()
+                                    
                                     if success:
-                                        self.stats['reviews_posted'] += 1
                                         logger.success(f"✅ Review {review_num}/{reviews_for_this_product} posted!")
                                         add_web_log('success', f'✅ Posted review {review_num}/{reviews_for_this_product} for {product_data["name"]}')
                                     else:
-                                        self.stats['reviews_failed'] += 1
                                         logger.failure(f"❌ Review {review_num}/{reviews_for_this_product} failed")
                                         add_web_log('error', f'❌ Failed to post review {review_num}/{reviews_for_this_product}')
                                     
@@ -189,6 +235,9 @@ class ReviewBot:
                                         delay = random.uniform(settings.MIN_DELAY, settings.MAX_DELAY)
                                         logger.info(f"⏳ Waiting {delay:.1f}s before next review on this product...")
                                         time.sleep(delay)
+                                        
+                                        # Check stop signal after delay
+                                        check_stop_signal()
                                     
                                     # Go back to product page for next review
                                     if review_num < reviews_for_this_product:
@@ -199,13 +248,8 @@ class ReviewBot:
                                 logger.success(f"✅ Completed all {reviews_for_this_product} reviews for this product!")
                                 add_web_log('success', f'Completed all reviews for {product_data["name"]}')
                                 
-                                # Mark product as done and save progress
-                                product_reviews_posted = sum(1 for _ in range(reviews_for_this_product) if True)  # Count actual posted
-                                self.progress.mark_product_done(
-                                    product_url,
-                                    reviews_posted=self.stats['reviews_posted'] - (self.progress.stats['reviews_posted'] if hasattr(self.progress, 'stats') else 0),
-                                    images_generated=self.stats['images_generated'] - (self.progress.stats['images_generated'] if hasattr(self.progress, 'stats') else 0)
-                                )
+                                # Mark product as fully completed and clear in-progress state
+                                self.progress.complete_current_product(images_generated=images_this_product)
                                 
                                 # Delay between PRODUCTS
                                 if prod_idx < len(products):
@@ -244,10 +288,16 @@ class ReviewBot:
         except KeyboardInterrupt:
             logger.warning("\n\n⚠️  Bot stopped by user")
             add_web_log('warning', 'Bot stopped by user')
+            add_web_log('info', '💾 Progress saved - click Resume Bot to continue')
             self._print_stats()
+            # Progress is already saved - don't clear it
         except Exception as e:
             logger.failure(f"Fatal error: {e}")
-            add_web_log('error', f'Fatal error: {str(e)}')
+            add_web_log('error', f'❌ Fatal error: {str(e)}')
+            add_web_log('info', '💾 Progress saved - click Resume Bot to continue from where it crashed')
+            # Save current progress state before exiting
+            self.progress.save_progress()
+            self._print_stats()
             raise
     
     def _print_stats(self):

@@ -9,7 +9,7 @@ def main():
         page.set_default_timeout(60000)
 
         # Go to home page
-        page.goto("https://stairnosingsuk.co.uk", wait_until="domcontentloaded")
+        page.goto("https://buildinsulation.co.uk", wait_until="domcontentloaded")
 
         # ✅ Click first collection
         page.wait_for_selector('xpath=//*[@id="block-1555314133560-0"]/a')

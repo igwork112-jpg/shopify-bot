@@ -627,7 +627,7 @@
 
             <div class="button-group">
                 <button type="button" class="btn btn-primary" id="startBtn">
-                    🚀 Start Bot
+                    <span id="startBtnIcon">🚀</span> <span id="startBtnText">Start Bot</span>
                 </button>
                 <button type="button" class="btn btn-secondary" id="stopBtn" disabled>
                     ⏹️ Stop Bot
@@ -1002,6 +1002,8 @@
                 if (data.success) {
                     alert('✅ Progress cleared! The bot will start fresh on the next run.');
                     addLog('info', '🗑️ Progress cleared - ready for fresh start');
+                    // Update button back to Start Bot
+                    updateStartButton(false);
                 } else {
                     alert('Error: ' + data.message);
                 }
@@ -1009,6 +1011,41 @@
                 alert('Error clearing progress: ' + error.message);
             }
         });
+
+        // Function to check progress and update button
+        async function checkProgressAndUpdateButton() {
+            try {
+                const response = await fetch('/check-progress');
+                const data = await response.json();
+
+                updateStartButton(data.hasProgress, data);
+            } catch (error) {
+                console.log('Could not check progress:', error);
+            }
+        }
+
+        // Update start button based on progress
+        function updateStartButton(hasProgress, progressData = null) {
+            const btnIcon = document.getElementById('startBtnIcon');
+            const btnText = document.getElementById('startBtnText');
+
+            if (hasProgress) {
+                btnIcon.textContent = '▶️';
+                btnText.textContent = 'Resume Bot';
+
+                // Show resume info if we have progress data
+                if (progressData && progressData.currentProduct) {
+                    const cp = progressData.currentProduct;
+                    console.log(`Resume info: ${cp.reviewsCompleted}/${cp.totalReviews} reviews done`);
+                }
+            } else {
+                btnIcon.textContent = '🚀';
+                btnText.textContent = 'Start Bot';
+            }
+        }
+
+        // Check progress on page load
+        checkProgressAndUpdateButton();
     </script>
 </body>
 

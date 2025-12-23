@@ -615,15 +615,6 @@
                 <p class="help-text">Choose which AI provider to use for generating review images</p>
             </div>
 
-            <div class="form-group">
-                <div class="checkbox-group">
-                    <span style="font-size: 24px;">🎲</span>
-                    <label>
-                        <strong>Reviews Per Product: 7-15 (Random)</strong><br>
-                        <small>Each product will receive a random number of reviews</small>
-                    </label>
-                </div>
-            </div>
 
             <div class="button-group">
                 <button type="button" class="btn btn-primary" id="startBtn">
@@ -889,7 +880,6 @@
             // Add log entry
             addLog('info', 'Starting bot with configuration...');
             addLog('info', `Store: ${config.storeUrl}`);
-            addLog('info', 'Reviews per product: 7-15 (random)');
             addLog('info', `Image Provider: ${config.imageProvider === 'none' ? 'Disabled' : config.imageProvider.toUpperCase()}`);
             addLog('info', 'Headless: Always enabled (background mode)');
 

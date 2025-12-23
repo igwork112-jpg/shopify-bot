@@ -25,8 +25,8 @@ class Settings:
             print("[SETTINGS] No Gemini API key found, falling back to OpenAI for image generation")
         
         # Bot Settings - Random reviews per product (range)
-        self.MIN_REVIEWS_PER_PRODUCT = int(os.getenv('MIN_REVIEWS_PER_PRODUCT', '7'))
-        self.MAX_REVIEWS_PER_PRODUCT = int(os.getenv('MAX_REVIEWS_PER_PRODUCT', '15'))
+        self.MIN_REVIEWS_PER_PRODUCT = int(os.getenv('MIN_REVIEWS_PER_PRODUCT', '4'))
+        self.MAX_REVIEWS_PER_PRODUCT = int(os.getenv('MAX_REVIEWS_PER_PRODUCT', '6'))
         
         # Convert string 'true'/'false' to boolean
         use_ai_images = os.getenv('USE_AI_IMAGES', 'true').lower()

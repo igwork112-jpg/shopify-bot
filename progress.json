@@ -1,0 +1,22 @@
+{
+  "store_url": "https://stairnosingsuk.co.uk/",
+  "started_at": "2025-12-23T20:39:52.151516",
+  "last_updated": "2025-12-23T20:58:23.253703",
+  "processed_products": [
+    "https://stairnosingsuk.co.uk/products/aluminium-60mmx55mm-non-slip-stair-nosing"
+  ],
+  "stats": {
+    "collections_processed": 0,
+    "products_processed": 1,
+    "reviews_posted": 9,
+    "reviews_failed": 0,
+    "images_generated": 6
+  },
+  "current_product": {
+    "product_url": "https://stairnosingsuk.co.uk/products/aluminium-non-slip-stair-nosing-63mm-x-32mm",
+    "total_reviews": 4,
+    "reviews_completed": 3,
+    "collection_index": 3,
+    "product_index": 2
+  }
+}

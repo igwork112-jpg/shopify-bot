@@ -93,8 +93,8 @@ def update_config():
             f.write(f"IMAGE_PROVIDER={env_content.get('IMAGE_PROVIDER', 'gemini')}\n")
 
             f.write("\n# Bot Settings\n")
-            f.write(f"MIN_REVIEWS_PER_PRODUCT={env_content.get('MIN_REVIEWS_PER_PRODUCT', '7')}\n")
-            f.write(f"MAX_REVIEWS_PER_PRODUCT={env_content.get('MAX_REVIEWS_PER_PRODUCT', '15')}\n")
+            f.write(f"MIN_REVIEWS_PER_PRODUCT={env_content.get('MIN_REVIEWS_PER_PRODUCT', '4')}\n")
+            f.write(f"MAX_REVIEWS_PER_PRODUCT={env_content.get('MAX_REVIEWS_PER_PRODUCT', '6')}\n")
             f.write(f"USE_AI_IMAGES={env_content.get('USE_AI_IMAGES', 'true')}\n")
             f.write(f"HEADLESS={env_content.get('HEADLESS', 'false')}\n")
             f.write(f"MIN_DELAY={env_content.get('MIN_DELAY', '3')}\n")
@@ -157,8 +157,8 @@ GEMINI_API_KEY={config.get('geminiApiKey', '')}
 IMAGE_PROVIDER={image_provider}
 
 # Bot Settings
-MIN_REVIEWS_PER_PRODUCT=7
-MAX_REVIEWS_PER_PRODUCT=15
+MIN_REVIEWS_PER_PRODUCT=4
+MAX_REVIEWS_PER_PRODUCT=6
 USE_AI_IMAGES={use_ai_images}
 HEADLESS=true
 MIN_DELAY=3

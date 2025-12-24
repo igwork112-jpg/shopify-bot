@@ -18,11 +18,78 @@
             background: #0a0a0f;
             min-height: 100vh;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            padding: 20px;
+            padding: 0;
             position: relative;
             overflow-x: hidden;
+        }
+
+        /* Navbar */
+        .navbar {
+            width: 100%;
+            background: linear-gradient(180deg, #12121a 0%, #0a0a0f 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #ff4d94;
+        }
+
+        .logo-icon {
+            font-size: 24px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-link {
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+            color: #ffffff;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
         }
 
         /* Animated background gradient */
@@ -556,102 +623,119 @@
 </head>
 
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Review Bot Control Panel</h1>
-            <p>Configure and run your Shopify review automation</p>
-        </div>
-
-        <div id="botForm">
-            <div class="form-group">
-                <label>Store URL</label>
-                <div class="input-with-button">
-                    <input type="text" id="storeUrl" placeholder="https://your-store.myshopify.com" required>
-                    <button type="button" class="btn-update" id="updateUrlBtn">
-                        Update
-                    </button>
-                </div>
-                <div class="success-message" id="urlSuccessMsg">
-                    ✓ Store URL saved to configuration!
-                </div>
-                <p class="help-text">Enter your Shopify store URL and click Update</p>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo">
+                <span class="logo-icon">🚀</span>
+                <span>Shopify Automation</span>
             </div>
-
-            <div class="form-group">
-                <label>OpenAI API Key</label>
-                <div class="input-with-button">
-                    <input type="text" id="apiKey" placeholder="sk-proj-..." required>
-                    <button type="button" class="btn-update" id="updateApiBtn">
-                        Update
-                    </button>
-                </div>
-                <div class="success-message" id="apiSuccessMsg">
-                    ✓ API Key saved to configuration!
-                </div>
-                <p class="help-text">Your OpenAI API key for AI review generation</p>
-            </div>
-
-            <div class="form-group">
-                <label>Gemini API Key</label>
-                <div class="input-with-button">
-                    <input type="text" id="geminiApiKey" placeholder="AI...">
-                    <button type="button" class="btn-update" id="updateGeminiApiBtn">
-                        Update
-                    </button>
-                </div>
-                <div class="success-message" id="geminiApiSuccessMsg">
-                    ✓ Gemini API Key saved to configuration!
-                </div>
-                <p class="help-text">Your Gemini API key for image generation (optional)</p>
-            </div>
-
-            <div class="form-group">
-                <label>🖼️ Image Generation Provider</label>
-                <select id="imageProvider">
-                    <option value="gemini">Gemini 2.0 Flash (Fast & Free Tier)</option>
-                    <option value="openai">OpenAI GPT-Image-1 (Premium Quality)</option>
-                    <option value="none">None (No AI Images)</option>
-                </select>
-                <p class="help-text">Choose which AI provider to use for generating review images</p>
-            </div>
-
-
-            <div class="button-group">
-                <button type="button" class="btn btn-primary" id="startBtn">
-                    <span id="startBtnIcon">🚀</span> <span id="startBtnText">Start Bot</span>
-                </button>
-                <button type="button" class="btn btn-secondary" id="stopBtn" disabled>
-                    ⏹️ Stop Bot
-                </button>
-            </div>
-
-            <div class="button-group" style="margin-top: 15px;">
-                <button type="button" class="btn btn-secondary" id="clearProgressBtn"
-                    style="flex: none; padding: 12px 20px; font-size: 12px;">
-                    🗑️ Clear Progress
-                </button>
+            <div class="nav-links">
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+                <a href="/" class="nav-link active">Scrape</a>
             </div>
         </div>
+    </nav>
 
-        <div class="status-box" id="statusBox">
-            <div class="status-header">
-                <div class="status-icon" id="statusIcon">●</div>
-                <span id="statusText">Ready</span>
+    <div class="main-content">
+        <div class="container">
+            <div class="header">
+                <h1>Review Bot Control Panel</h1>
+                <p>Configure and run your Shopify review automation</p>
             </div>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number" id="statProducts">0</div>
-                    <div class="stat-label">Products</div>
+
+            <div id="botForm">
+                <div class="form-group">
+                    <label>Store URL</label>
+                    <div class="input-with-button">
+                        <input type="text" id="storeUrl" placeholder="https://your-store.myshopify.com" required>
+                        <button type="button" class="btn-update" id="updateUrlBtn">
+                            Update
+                        </button>
+                    </div>
+                    <div class="success-message" id="urlSuccessMsg">
+                        ✓ Store URL saved to configuration!
+                    </div>
+                    <p class="help-text">Enter your Shopify store URL and click Update</p>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="statReviews">0</div>
-                    <div class="stat-label">Reviews Posted</div>
+
+                <div class="form-group">
+                    <label>OpenAI API Key</label>
+                    <div class="input-with-button">
+                        <input type="text" id="apiKey" placeholder="sk-proj-..." required>
+                        <button type="button" class="btn-update" id="updateApiBtn">
+                            Update
+                        </button>
+                    </div>
+                    <div class="success-message" id="apiSuccessMsg">
+                        ✓ API Key saved to configuration!
+                    </div>
+                    <p class="help-text">Your OpenAI API key for AI review generation</p>
+                </div>
+
+                <div class="form-group">
+                    <label>Gemini API Key</label>
+                    <div class="input-with-button">
+                        <input type="text" id="geminiApiKey" placeholder="AI...">
+                        <button type="button" class="btn-update" id="updateGeminiApiBtn">
+                            Update
+                        </button>
+                    </div>
+                    <div class="success-message" id="geminiApiSuccessMsg">
+                        ✓ Gemini API Key saved to configuration!
+                    </div>
+                    <p class="help-text">Your Gemini API key for image generation (optional)</p>
+                </div>
+
+                <div class="form-group">
+                    <label>🖼️ Image Generation Provider</label>
+                    <select id="imageProvider">
+                        <option value="gemini">Gemini 2.0 Flash (Fast & Free Tier)</option>
+                        <option value="openai">OpenAI GPT-Image-1 (Premium Quality)</option>
+                        <option value="none">None (No AI Images)</option>
+                    </select>
+                    <p class="help-text">Choose which AI provider to use for generating review images</p>
+                </div>
+
+
+                <div class="button-group">
+                    <button type="button" class="btn btn-primary" id="startBtn">
+                        <span id="startBtnIcon">🚀</span> <span id="startBtnText">Start Bot</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="stopBtn" disabled>
+                        ⏹️ Stop Bot
+                    </button>
+                </div>
+
+                <div class="button-group" style="margin-top: 15px;">
+                    <button type="button" class="btn btn-secondary" id="clearProgressBtn"
+                        style="flex: none; padding: 12px 20px; font-size: 12px;">
+                        🗑️ Clear Progress
+                    </button>
                 </div>
             </div>
 
-            <div class="log-container" id="logContainer">
-                <div class="log-entry info">Bot ready to start...</div>
+            <div class="status-box" id="statusBox">
+                <div class="status-header">
+                    <div class="status-icon" id="statusIcon">●</div>
+                    <span id="statusText">Ready</span>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="statProducts">0</div>
+                        <div class="stat-label">Products</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="statReviews">0</div>
+                        <div class="stat-label">Reviews Posted</div>
+                    </div>
+                </div>
+
+                <div class="log-container" id="logContainer">
+                    <div class="log-entry info">Bot ready to start...</div>
+                </div>
             </div>
         </div>
     </div>

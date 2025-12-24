@@ -41,10 +41,12 @@ class ReviewBot:
         self.stats = {
             'collections_processed': 0,
             'products_processed': 0,
+            'products_found': 0,
             'reviews_posted': 0,
             'reviews_failed': 0,
             'images_generated': 0
         }
+
         # Use provided store_url or fall back to settings
         self.store_url = store_url or settings.STORE_URL
         
@@ -82,9 +84,12 @@ class ReviewBot:
             
             logger.info("=" * 70)
             
-            # Start browser
+            # Start browser with restart capability
             add_web_log('info', 'Launching browser...')
-            with BrowserManager() as page:
+            browser_manager = BrowserManager()
+            page = browser_manager.start()
+            
+            try:
                 # Initialize components
                 scraper = ProductScraper(page)
                 generator = ReviewGenerator()
@@ -121,7 +126,9 @@ class ReviewBot:
                             continue
                         
                         self.stats['collections_processed'] += 1
+                        self.stats['products_found'] += len(products)
                         add_web_log('success', f'Found {len(products)} products in collection {coll_idx}')
+
                         
                         # Step 3: Loop through products
                         for prod_idx, product_url in enumerate(products, 1):
@@ -200,27 +207,72 @@ class ReviewBot:
                                     # Track image generation
                                     if review_data.get('image_path'):
                                         images_this_product += 1
+                                        self.stats['images_generated'] += 1
                                         logger.info(f"📸 AI Image: {review_data['image_path'].name}")
                                         add_web_log('success', f'Generated AI image for review {review_num}')
+
                                     
-                                    # Post review to Loox
-                                    success = poster.post_review(
-                                        review_data, 
-                                        image_path=review_data.get('image_path')
-                                    )
+                                    # Post review to Loox with browser recovery
+                                    success = False
+                                    max_post_retries = 3
+                                    
+                                    for post_attempt in range(max_post_retries):
+                                        try:
+                                            success = poster.post_review(
+                                                review_data, 
+                                                image_path=review_data.get('image_path')
+                                            )
+                                            break  # Success, exit retry loop
+                                            
+                                        except Exception as post_error:
+                                            error_str = str(post_error).lower()
+                                            recoverable = any(err in error_str for err in [
+                                                'epipe', 'broken pipe', 'target closed',
+                                                'browser has been closed', 'page closed',
+                                                'connection closed', 'frame was detached'
+                                            ])
+                                            
+                                            if recoverable and post_attempt < max_post_retries - 1:
+                                                logger.warning(f"⚠️ Browser error during review post (attempt {post_attempt + 1}/{max_post_retries}): {post_error}")
+                                                add_web_log('warning', f'Browser error, restarting... (attempt {post_attempt + 1})')
+                                                
+                                                # Restart browser
+                                                try:
+                                                    page = browser_manager.restart()
+                                                    # Re-initialize components with new page
+                                                    scraper = ProductScraper(page)
+                                                    poster = LooxReviewPoster(page)
+                                                    
+                                                    # Navigate back to product page
+                                                    logger.info(f"🔄 Navigating back to product: {product_url}")
+                                                    page.goto(product_url, wait_until="domcontentloaded")
+                                                    time.sleep(3)
+                                                    
+                                                except Exception as restart_error:
+                                                    logger.error(f"❌ Browser restart failed: {restart_error}")
+                                                    raise post_error  # Re-raise original error
+                                            else:
+                                                # Non-recoverable or max retries exceeded
+                                                raise
                                     
                                     # Mark review done and save progress immediately
                                     self.progress.mark_review_done(success=success)
+                                    
+                                    # Reset restart count on successful operation
+                                    browser_manager.reset_restart_count()
                                     
                                     # Check stop signal after posting (can take time)
                                     check_stop_signal()
                                     
                                     if success:
+                                        self.stats['reviews_posted'] += 1
                                         logger.success(f"✅ Review {review_num}/{reviews_for_this_product} posted!")
                                         add_web_log('success', f'✅ Posted review {review_num}/{reviews_for_this_product} for {product_data["name"]}')
                                     else:
+                                        self.stats['reviews_failed'] += 1
                                         logger.failure(f"❌ Review {review_num}/{reviews_for_this_product} failed")
                                         add_web_log('error', f'❌ Failed to post review {review_num}/{reviews_for_this_product}')
+
                                     
                                     # Cleanup temp image file
                                     if review_data.get('image_path') and review_data['image_path'].exists():
@@ -242,8 +294,17 @@ class ReviewBot:
                                     # Go back to product page for next review
                                     if review_num < reviews_for_this_product:
                                         logger.info("🔄 Returning to product page for next review...")
-                                        page.goto(product_url, wait_until="domcontentloaded")
-                                        time.sleep(2)
+                                        try:
+                                            page.goto(product_url, wait_until="domcontentloaded")
+                                            time.sleep(2)
+                                        except Exception as nav_error:
+                                            # Handle navigation errors with browser restart
+                                            logger.warning(f"⚠️ Navigation error: {nav_error}")
+                                            page = browser_manager.restart()
+                                            scraper = ProductScraper(page)
+                                            poster = LooxReviewPoster(page)
+                                            page.goto(product_url, wait_until="domcontentloaded")
+                                            time.sleep(3)
                                 
                                 logger.success(f"✅ Completed all {reviews_for_this_product} reviews for this product!")
                                 add_web_log('success', f'Completed all reviews for {product_data["name"]}')
@@ -277,13 +338,17 @@ class ReviewBot:
                         add_web_log('error', f'Error on collection {coll_idx}: {str(e)}')
                         continue
             
-            # Print final stats
-            self._print_stats()
-            add_web_log('success', '🎉 Bot completed all tasks successfully!')
-            
-            # Clear progress on successful completion
-            self.progress.clear_progress()
-            add_web_log('info', '✨ Progress cleared - ready for next run')
+                # Print final stats
+                self._print_stats()
+                add_web_log('success', '🎉 Bot completed all tasks successfully!')
+                
+                # Clear progress on successful completion
+                self.progress.clear_progress()
+                add_web_log('info', '✨ Progress cleared - ready for next run')
+                
+            finally:
+                # Always close the browser
+                browser_manager.close()
             
         except KeyboardInterrupt:
             logger.warning("\n\n⚠️  Bot stopped by user")
@@ -295,6 +360,7 @@ class ReviewBot:
             logger.failure(f"Fatal error: {e}")
             add_web_log('error', f'❌ Fatal error: {str(e)}')
             add_web_log('info', '💾 Progress saved - click Resume Bot to continue from where it crashed')
+
             # Save current progress state before exiting
             self.progress.save_progress()
             self._print_stats()

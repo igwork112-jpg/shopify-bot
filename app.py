@@ -8,6 +8,7 @@ import os
 import time
 import sys
 from pathlib import Path
+from src.job_manager import job_manager
 
 app = Flask(__name__, static_folder='.')
 CORS(app, resources={
@@ -34,6 +35,10 @@ bot_state = {
 }
 
 
+# Current job being processed (for linking progress with jobs)
+current_job_task_id = None
+
+
 # ============================================================
 # ROUTES
 # ============================================================
@@ -42,6 +47,108 @@ bot_state = {
 def index():
     """Serve the frontend HTML at http://127.0.0.1:5000"""
     return send_from_directory('.', 'frontend.html')
+
+
+@app.route('/dashboard')
+def dashboard():
+    """Serve the dashboard HTML"""
+    return send_from_directory('.', 'dashboard.html')
+
+
+# ============================================================
+# DASHBOARD API ENDPOINTS
+# ============================================================
+
+@app.route('/api/dashboard/stats', methods=['GET'])
+def get_dashboard_stats():
+    """Get aggregate statistics for the dashboard"""
+    try:
+        stats = job_manager.get_dashboard_stats()
+        return jsonify(stats)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/jobs', methods=['GET'])
+def get_jobs():
+    """Get all jobs with optional pagination"""
+    try:
+        limit = request.args.get('limit', 50, type=int)
+        offset = request.args.get('offset', 0, type=int)
+        jobs = job_manager.get_all_jobs(limit=limit, offset=offset)
+        
+        # Format dates for JSON
+        for job in jobs:
+            if job.get('created_at'):
+                job['created_at'] = str(job['created_at'])
+            if job.get('updated_at'):
+                job['updated_at'] = str(job['updated_at'])
+        
+        return jsonify({'jobs': jobs})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/jobs/<task_id>', methods=['GET'])
+def get_job(task_id):
+    """Get a specific job by task_id"""
+    try:
+        job = job_manager.get_job(task_id)
+        if not job:
+            return jsonify({'error': 'Job not found'}), 404
+        
+        # Format dates
+        if job.get('created_at'):
+            job['created_at'] = str(job['created_at'])
+        if job.get('updated_at'):
+            job['updated_at'] = str(job['updated_at'])
+        
+        # Get logs for this job
+        logs = job_manager.get_job_logs(task_id)
+        job['logs'] = logs
+        
+        return jsonify(job)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/jobs', methods=['POST'])
+def create_job():
+    """Create a new scrape job"""
+    try:
+        data = request.json
+        source_url = data.get('source_url')
+        
+        if not source_url:
+            return jsonify({'error': 'source_url is required'}), 400
+        
+        job = job_manager.create_job(source_url)
+        if job.get('created_at'):
+            job['created_at'] = str(job['created_at'])
+        if job.get('updated_at'):
+            job['updated_at'] = str(job['updated_at'])
+        
+        return jsonify(job), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/jobs/<task_id>', methods=['DELETE'])
+def delete_job(task_id):
+    """Delete a job"""
+    try:
+        success = job_manager.delete_job(task_id)
+        if success:
+            return jsonify({'success': True, 'message': 'Job deleted'})
+        else:
+            return jsonify({'error': 'Job not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# ============================================================
+# ORIGINAL ROUTES
+# ============================================================
 
 
 @app.route('/update-config', methods=['POST', 'OPTIONS'])
@@ -309,7 +416,7 @@ def check_progress():
 
 def run_bot():
     """Run the main bot script"""
-    global bot_state
+    global bot_state, current_job_task_id
 
     try:
         add_log('info', 'Initializing bot...')
@@ -346,6 +453,11 @@ def run_bot():
         # Create bot instance with FRESH store URL from settings
         store_url = settings.STORE_URL
         add_log('info', f'🎯 Creating bot for store: {store_url}')
+        
+        # Create a job in the database for tracking
+        job = job_manager.create_job(store_url)
+        current_job_task_id = job['task_id']
+        add_log('info', f'📋 Created job: {current_job_task_id}')
 
         bot = main.ReviewBot(store_url=store_url)
         bot_state['bot_instance'] = bot
@@ -360,6 +472,19 @@ def run_bot():
                 bot_state['stats']['reviewsPosted'] = self.get('reviews_posted', 0)
                 bot_state['stats']['reviewsFailed'] = self.get('reviews_failed', 0)
                 bot_state['stats']['collectionsProcessed'] = self.get('collections_processed', 0)
+                
+                # Update job in database
+                if current_job_task_id:
+                    job_manager.update_job(
+                        current_job_task_id,
+                        products_found=self.get('products_found', 0),
+                        products_processed=self.get('products_processed', 0),
+                        reviews_posted=self.get('reviews_posted', 0),
+                        reviews_failed=self.get('reviews_failed', 0),
+                        collections_processed=self.get('collections_processed', 0),
+                        images_generated=self.get('images_generated', 0)
+                    )
+
 
                 if hasattr(main, 'web_logs') and main.web_logs:
                     for log in main.web_logs:
@@ -377,11 +502,21 @@ def run_bot():
         bot.run()
 
         add_log('success', '🎉 Bot completed all tasks!')
+        
+        # Mark job as completed
+        if current_job_task_id:
+            job_manager.update_job(current_job_task_id, status='completed')
+        
         bot_state['running'] = False
 
     except KeyboardInterrupt:
         add_log('warning', '⚠️ Bot stopped by user')
         add_log('info', '💾 Progress saved - use Resume Bot to continue')
+        
+        # Mark job as paused
+        if current_job_task_id:
+            job_manager.update_job(current_job_task_id, status='paused', error_message='Stopped by user')
+        
         bot_state['running'] = False
     except Exception as e:
         import traceback
@@ -391,7 +526,13 @@ def run_bot():
         for line in tb.split('\n')[:5]:  # Show first 5 lines of traceback
             if line.strip():
                 add_log('error', line.strip())
+        
+        # Mark job as failed
+        if current_job_task_id:
+            job_manager.update_job(current_job_task_id, status='failed', error_message=str(e))
+        
         bot_state['running'] = False
+
 
 
 def add_log(log_type, message):

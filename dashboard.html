@@ -412,6 +412,66 @@
             transform: translateY(-2px);
         }
 
+        .btn-pause {
+            background: rgba(251, 191, 36, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        .btn-pause:hover {
+            background: rgba(251, 191, 36, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .btn-resume {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-resume:hover {
+            background: rgba(16, 185, 129, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .btn-stop-global {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-stop-global:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-resume-global {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-resume-global:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+
         /* Empty State */
         .empty-state {
             text-align: center;
@@ -580,12 +640,20 @@
                     <div class="section-title">
                         <span>📋</span> Recent Scrape Jobs
                     </div>
-                    <div style="display: flex; align-items: center; gap: 16px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
                         <span class="last-updated" id="lastUpdated">Last updated: --</span>
+                        <button class="btn-resume-global" id="globalResumeBtn" onclick="resumeBot()"
+                            style="display: none;">
+                            ▶️ Resume Bot
+                        </button>
+                        <button class="btn-stop-global" id="globalStopBtn" onclick="stopBot()" style="display: none;">
+                            ⏹️ Stop Bot
+                        </button>
                         <button class="btn-refresh" onclick="loadDashboard()">
                             🔄 Refresh
                         </button>
                     </div>
+
                 </div>
 
                 <!-- Jobs Tab Panel -->
@@ -638,11 +706,20 @@
                 // Load jobs
                 const jobsRes = await fetch('/api/jobs');
                 const jobsData = await jobsRes.json();
-                renderJobsTable(jobsData.jobs || []);
+                const jobs = jobsData.jobs || [];
+
+                // Check for paused jobs
+                const hasPausedJobs = jobs.some(j => j.status === 'paused');
+
+                // Update global buttons visibility
+                updateGlobalButtons(stats.jobs_running || 0, hasPausedJobs);
+
+                renderJobsTable(jobs);
 
                 // Update last updated time
                 document.getElementById('lastUpdated').textContent =
                     'Last updated: ' + new Date().toLocaleTimeString();
+
 
             } catch (error) {
                 console.error('Failed to load dashboard:', error);
@@ -697,6 +774,15 @@
                                 <td>${formatDate(job.created_at)}</td>
                                 <td>
                                     <div class="action-buttons">
+                                        ${job.status === 'running' ? `
+                                            <button class="btn-action btn-pause" onclick="pauseJob('${job.task_id}')">
+                                                ⏸️ Pause
+                                            </button>
+                                        ` : job.status === 'paused' ? `
+                                            <button class="btn-action btn-resume" onclick="resumeJob('${job.task_id}')">
+                                                ▶️ Resume
+                                            </button>
+                                        ` : ''}
                                         <button class="btn-action btn-view" onclick="viewJob('${job.task_id}')">
                                             👁️ View
                                         </button>
@@ -754,11 +840,103 @@
             }
         }
 
+        // Stop the bot globally
+        async function stopBot() {
+            if (!confirm('Are you sure you want to stop the running bot?')) return;
+
+            try {
+                const res = await fetch('/stop-bot', { method: 'POST' });
+                const result = await res.json();
+
+                if (result.success) {
+                    alert('✅ Bot stop signal sent! The bot will pause after completing the current review.');
+                    loadDashboard();
+                } else {
+                    alert('Failed to stop bot: ' + (result.message || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Failed to stop bot: ' + error.message);
+            }
+        }
+
+        // Pause a running job (same as stop for now)
+        async function pauseJob(taskId) {
+            if (!confirm('Pause this job? Progress will be saved.')) return;
+
+            try {
+                const res = await fetch('/stop-bot', { method: 'POST' });
+                const result = await res.json();
+
+                if (result.success) {
+                    alert('✅ Job paused! Progress saved. Use Resume on the Scrape page to continue.');
+                    loadDashboard();
+                } else {
+                    alert('Failed to pause: ' + (result.message || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Failed to pause: ' + error.message);
+            }
+        }
+
+        // Resume a paused job directly using the API
+        async function resumeJob(taskId) {
+            if (!confirm('Resume this job from saved progress?')) return;
+
+            try {
+                const res = await fetch('/resume-bot', { method: 'POST' });
+                const result = await res.json();
+
+                if (result.success) {
+                    alert('✅ Bot resumed! It will continue from saved progress.');
+                    loadDashboard();
+                } else {
+                    alert('Failed to resume: ' + (result.message || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Failed to resume: ' + error.message);
+            }
+        }
+
+        // Global resume bot function
+        async function resumeBot() {
+            if (!confirm('Resume the bot from saved progress?')) return;
+
+            try {
+                const res = await fetch('/resume-bot', { method: 'POST' });
+                const result = await res.json();
+
+                if (result.success) {
+                    alert('✅ Bot resumed! It will continue from saved progress.');
+                    loadDashboard();
+                } else {
+                    alert('Failed to resume: ' + (result.message || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Failed to resume: ' + error.message);
+            }
+        }
+
+        // Update global buttons visibility based on running/paused jobs
+        function updateGlobalButtons(jobsRunning, hasPausedJobs) {
+            const stopBtn = document.getElementById('globalStopBtn');
+            const resumeBtn = document.getElementById('globalResumeBtn');
+
+            if (stopBtn) {
+                stopBtn.style.display = jobsRunning > 0 ? 'flex' : 'none';
+            }
+            if (resumeBtn) {
+                // Show resume button only if there are paused jobs AND bot is not running
+                resumeBtn.style.display = (hasPausedJobs && jobsRunning === 0) ? 'flex' : 'none';
+            }
+        }
+
         // Auto-refresh every 10 seconds
         setInterval(loadDashboard, 10000);
 
         // Initial load
         loadDashboard();
+
+
     </script>
 </body>
 

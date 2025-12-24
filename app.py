@@ -331,6 +331,52 @@ def stop_bot():
         return jsonify({'success': False, 'message': str(e)}), 500
 
 
+@app.route('/resume-bot', methods=['POST'])
+def resume_bot():
+    """Resume the bot using existing configuration from .env"""
+    global bot_state
+
+    if bot_state['running']:
+        return jsonify({'success': False, 'message': 'Bot is already running'}), 400
+
+    try:
+        # Force reload environment variables
+        from dotenv import load_dotenv
+        load_dotenv(override=True)
+        
+        # Clear cached modules for fresh config
+        modules_to_clear = ['config.settings', 'main', 'config']
+        for mod in modules_to_clear:
+            if mod in sys.modules:
+                del sys.modules[mod]
+
+        # Reset bot state
+        bot_state.update({
+            'logs': [],
+            'stop_requested': False,
+            'stats': {
+                'productsProcessed': 0,
+                'reviewsPosted': 0,
+                'reviewsFailed': 0,
+                'collectionsProcessed': 0
+            }
+        })
+
+        # Start bot in new thread (will resume from progress.json)
+        bot_thread = threading.Thread(target=run_bot, daemon=True)
+        bot_thread.start()
+        bot_state['bot_thread'] = bot_thread
+        bot_state['running'] = True
+
+        add_log('info', '🔄 Bot resuming from saved progress...')
+        return jsonify({'success': True, 'message': 'Bot resumed successfully'})
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
 @app.route('/bot-status', methods=['GET'])
 def bot_status():
     """Return current bot status and logs"""

@@ -1,24 +1,26 @@
 {
-  "store_url": "https://buildinsulation.co.uk/",
-  "started_at": "2025-12-24T18:37:49.633640",
-  "last_updated": "2025-12-24T20:45:28.826193",
+  "store_url": "https://tarpaulinscompany.co.uk/",
+  "started_at": "2026-01-09T18:44:12.865354",
+  "last_updated": "2026-01-09T19:36:00.701555",
   "processed_products": [
-    "https://buildinsulation.co.uk/collections/acoustic-matting/products/premium-acoustic-rubber-wall-tile",
-    "https://buildinsulation.co.uk/collections/acoustic-matting/products/premium-acoustic-control-mat-1200mm-x-600mm",
-    "https://buildinsulation.co.uk/collections/acoustic-matting/products/premium-acoustic-rubber-underlay-20mm",
-    "https://buildinsulation.co.uk/collections/acoustic-matting/products/premium-acoustic-mufti-lagging"
+    "https://tarpaulinscompany.co.uk/products/abarth-595-turismo-2025-premium-edition-hatchback-car-covers",
+    "https://tarpaulinscompany.co.uk/products/abarth-595-turismo-2025-basic-edition-hatchback-car-covers",
+    "https://tarpaulinscompany.co.uk/products/abarth-595-turismo-2025-indoor-premium-satin-edition-hatchback-car-covers",
+    "https://tarpaulinscompany.co.uk/products/abarth-695-2025-basic-edition-hatchback-car-covers-custom-fit-weather-resistant",
+    "https://tarpaulinscompany.co.uk/products/abarth-595-turismo-2025-indoor-standard-edition-hatchback-car-covers",
+    "https://tarpaulinscompany.co.uk/products/abarth-595-turismo-2025-standard-edition-hatchback-car-covers"
   ],
   "stats": {
     "collections_processed": 0,
-    "products_processed": 4,
-    "reviews_posted": 22,
-    "reviews_failed": 0,
-    "images_generated": 7
+    "products_processed": 6,
+    "reviews_posted": 29,
+    "reviews_failed": 1,
+    "images_generated": 1
   },
   "current_product": {
-    "product_url": "https://buildinsulation.co.uk/collections/acoustic-underlay/products/premium-acoustic-control-mat-1200mm-x-600mm",
-    "total_reviews": 5,
-    "reviews_completed": 0,
+    "product_url": "https://tarpaulinscompany.co.uk/products/abarth-695-2025-indoor-premium-satin-edition-hatchback-car-covers-custom-fit-dirt-dust-protection",
+    "total_reviews": 4,
+    "reviews_completed": 1,
     "collection_index": 2,
     "product_index": 2
   }

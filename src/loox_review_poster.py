@@ -1281,31 +1281,93 @@ class LooxReviewPoster:
         try:
             logger.info("⏭️ Clicking Skip button...")
             
+            # First, try to scroll down inside the modal to make Skip visible
+            try:
+                self.review_iframe.evaluate("""
+                    // Scroll the modal/container to bottom to reveal Skip button
+                    const containers = document.querySelectorAll('[class*="modal"], [class*="dialog"], [role="dialog"], form, [class*="content"]');
+                    containers.forEach(c => {
+                        c.scrollTop = c.scrollHeight;
+                    });
+                    // Also try body
+                    document.body.scrollTop = document.body.scrollHeight;
+                    document.documentElement.scrollTop = document.documentElement.scrollHeight;
+                """)
+                time.sleep(1)
+            except:
+                pass
+            
+            # Updated selectors - look for visible Skip button
             skip_selectors = [
-                "button[aria-label='Skip']",
+                "button:has-text('Skip'):visible",
+                "button[aria-label='Skip']:visible",
+                "button[data-testid='skip button']",
                 "button[data-testid='mobile skip button']",
-                "button:has-text('Skip')"
+                # Text-based selectors
+                "text=Skip",
+                "button >> text=Skip"
             ]
             
             skip_clicked = False
             for sel in skip_selectors:
                 try:
-                    if self.review_iframe.locator(sel).count() > 0:
-                        self.review_iframe.click(sel, timeout=3000, force=True)
-                        logger.success(f"✅ Clicked Skip with: {sel}")
-                        skip_clicked = True
-                        break
-                except:
+                    locator = self.review_iframe.locator(sel)
+                    if locator.count() > 0:
+                        # Check if actually visible
+                        if locator.first.is_visible(timeout=2000):
+                            locator.first.click(timeout=5000)  # No force=True
+                            logger.success(f"✅ Clicked Skip with: {sel}")
+                            skip_clicked = True
+                            time.sleep(2)
+                            break
+                        else:
+                            logger.debug(f"Skip button found with {sel} but not visible")
+                except Exception as e:
+                    logger.debug(f"Selector {sel} failed: {str(e)[:50]}")
                     continue
             
+            # JavaScript fallback - find and click visible Skip button
             if not skip_clicked:
-                # JS fallback
-                self.review_iframe.evaluate("""
-                    const btn = Array.from(document.querySelectorAll('button'))
-                    .find(b => b.textContent.trim().toLowerCase() === 'skip');
-                    if (btn) btn.click();
+                logger.info("Trying JS approach to find visible Skip button...")
+                result = self.review_iframe.evaluate("""
+                    () => {
+                        // Find all buttons/elements with Skip text
+                        const allElements = document.querySelectorAll('button, a, span, div');
+                        for (const el of allElements) {
+                            if (el.textContent.trim().toLowerCase() === 'skip') {
+                                // Check if visible
+                                const rect = el.getBoundingClientRect();
+                                const style = window.getComputedStyle(el);
+                                if (rect.width > 0 && rect.height > 0 && 
+                                    style.display !== 'none' && 
+                                    style.visibility !== 'hidden' &&
+                                    style.opacity !== '0') {
+                                    el.click();
+                                    return 'Clicked Skip via JS: ' + el.tagName;
+                                }
+                            }
+                        }
+                        
+                        // Try clicking by aria-label
+                        const skipBtn = document.querySelector('[aria-label="Skip"]');
+                        if (skipBtn) {
+                            skipBtn.click();
+                            return 'Clicked via aria-label';
+                        }
+                        
+                        return false;
+                    }
                 """)
-                logger.success("✅ Skip clicked via JS")
+                
+                if result:
+                    logger.success(f"✅ {result}")
+                    skip_clicked = True
+                else:
+                    logger.warning("⚠️ Could not find visible Skip button via JS")
+            
+            if not skip_clicked:
+                logger.error("❌ Failed to click Skip button - button may not be visible")
+                return False
             
             time.sleep(3)
             return True

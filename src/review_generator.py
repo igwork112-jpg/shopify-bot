@@ -504,7 +504,22 @@ class ReviewGenerator:
                 return None
                 
         except Exception as e:
-            logger.error(f"GPT-Image-1 generation failed: {e}")
+            # Log detailed error information
+            error_msg = str(e)
+            logger.error(f"GPT-Image-1 generation failed: {error_msg}")
+            
+            # Check for common OpenAI errors
+            if "invalid_api_key" in error_msg.lower():
+                logger.error("⚠️ OpenAI API key is invalid")
+            elif "rate_limit" in error_msg.lower():
+                logger.error("⚠️ OpenAI rate limit exceeded - wait a moment")
+            elif "content_policy" in error_msg.lower():
+                logger.error("⚠️ Content policy violation - prompt was rejected")
+            elif "billing" in error_msg.lower() or "quota" in error_msg.lower():
+                logger.error("⚠️ OpenAI billing/quota issue - check your account")
+            elif "model" in error_msg.lower():
+                logger.error("⚠️ Model issue - gpt-image-1 may not be available on your account")
+            
             return None
     
     def _generate_with_ai(self, product_name: str, description: str, rating: int) -> Dict:
@@ -547,7 +562,7 @@ class ReviewGenerator:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=250
+                max_tokens=500
             )
             
             content = response.choices[0].message.content.strip()

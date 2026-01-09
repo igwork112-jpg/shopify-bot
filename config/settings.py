@@ -33,8 +33,8 @@ class Settings:
         self.USE_AI_IMAGES = use_ai_images in ('true', '1', 'yes', 'on')
         
         # Convert string 'true'/'false' to boolean for HEADLESS
-        headless = os.getenv('HEADLESS', 'false').lower()
-        self.HEADLESS = headless in ('false', '1', 'no', 'off')
+        headless = os.getenv('HEADLESS', 'true').lower()
+        self.HEADLESS = headless in ('true', '1', 'yes', 'on')
         
         self.MIN_DELAY = int(os.getenv('MIN_DELAY', '3'))
         self.MAX_DELAY = int(os.getenv('MAX_DELAY', '6'))

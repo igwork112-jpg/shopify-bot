@@ -1414,10 +1414,11 @@ class LooxReviewPoster:
             
             if not filled:
                 # JS fallback
+                escaped_review = review_text.replace('"', '\\"')
                 self.review_iframe.evaluate(f"""
                     const ta = document.querySelector('textarea');
                     if (ta) {{
-                        ta.value = "{review_text.replace('"', '\\"')}";
+                        ta.value = "{escaped_review}";
                         ta.dispatchEvent(new Event('input', {{ bubbles: true }}));
                     }}
                 """)

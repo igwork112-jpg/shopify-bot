@@ -923,12 +923,38 @@ class LooxReviewPoster:
                 try:
                     if self.loox_iframe.locator(selector).count() > 0:
                         logger.info(f"Found button with: {selector}")
-                        self.loox_iframe.click(selector, timeout=5000)
-                        logger.success(f"✅ Clicked 'Write a Review' with: {selector}")
-                        time.sleep(5)
-                        clicked = True
-                        break
-                except:
+
+                        # Scroll button into view first
+                        try:
+                            self.loox_iframe.locator(selector).first.scroll_into_view_if_needed(timeout=3000)
+                            time.sleep(1)
+                        except:
+                            pass
+
+                        # Try clicking with force=True to bypass overlays
+                        self.loox_iframe.click(selector, timeout=5000, force=True)
+                        logger.info(f"Clicked button with: {selector}")
+
+                        # Verify form opened by checking for review form iframe
+                        time.sleep(3)
+                        form_appeared = False
+                        try:
+                            # Check if review form iframe appeared on main page
+                            if self.page.locator('iframe#loox-review-form-ugc-dialog').count() > 0:
+                                form_appeared = True
+                                logger.success(f"✅ Review form opened! (selector: {selector})")
+                        except:
+                            pass
+
+                        if form_appeared:
+                            clicked = True
+                            break
+                        else:
+                            logger.warning(f"⚠️ Button clicked but form didn't open (selector: {selector})")
+                            # Try next selector
+                            continue
+                except Exception as click_error:
+                    logger.debug(f"Click failed for {selector}: {str(click_error)[:100]}")
                     continue
 
             if not clicked:

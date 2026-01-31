@@ -895,17 +895,68 @@ class LooxReviewPoster:
             return False
     
     def _click_write_review(self) -> bool:
-        """Click 'Write a Review' button - #write"""
+        """Click 'Write a Review' button - multiple selectors"""
         try:
             logger.info("✍️ Clicking 'Write a Review' button...")
-            
-            self.loox_iframe.wait_for_selector("#write", timeout=15000)
-            self.loox_iframe.click("#write")
-            
-            logger.success("Clicked 'Write a Review'")
-            time.sleep(5)
+
+            # Multiple selectors for "Write a Review" button
+            selectors = [
+                "#write",
+                "button#write",
+                "a#write",
+                "[id='write']",
+                "button:has-text('Write a Review')",
+                "a:has-text('Write a Review')",
+                "button:has-text('Write Review')",
+                "a:has-text('Write Review')",
+                ".loox-write-review-button",
+                "[class*='write'][class*='review']",
+                "[data-action='write-review']",
+                ".lx-write-review",
+                "button[onclick*='review']",
+                "a[href*='review']"
+            ]
+
+            # Try each selector
+            clicked = False
+            for selector in selectors:
+                try:
+                    if self.loox_iframe.locator(selector).count() > 0:
+                        logger.info(f"Found button with: {selector}")
+                        self.loox_iframe.click(selector, timeout=5000)
+                        logger.success(f"✅ Clicked 'Write a Review' with: {selector}")
+                        time.sleep(5)
+                        clicked = True
+                        break
+                except:
+                    continue
+
+            if not clicked:
+                # Debug: Log what's actually on the page
+                logger.warning("⚠️ Could not find 'Write a Review' button")
+                logger.warning("Checking page content...")
+
+                # Check if there are any buttons/links
+                button_count = self.loox_iframe.locator("button, a").count()
+                logger.info(f"Found {button_count} buttons/links on page")
+
+                # Try to get page text
+                try:
+                    page_text = self.loox_iframe.evaluate("document.body.innerText")
+                    logger.info(f"Page text (first 200 chars): {page_text[:200]}")
+
+                    # Check if login required
+                    if any(word in page_text.lower() for word in ['login', 'sign in', 'log in', 'account']):
+                        logger.error("❌ Loox requires customer login to write reviews!")
+                        logger.error("   Please configure Loox to allow reviews without login")
+                        return False
+                except:
+                    pass
+
+                return False
+
             return True
-            
+
         except Exception as e:
             logger.error(f"Error clicking write review: {e}")
             return False
